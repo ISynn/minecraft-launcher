@@ -1,0 +1,699 @@
+/* ==========================================================================
+   Thème du launcher — sombre, verre dépoli, accent violet → cyan.
+   Toutes les couleurs principales sont définies une fois ici (.root).
+   ========================================================================== */
+
+.root {
+    -fx-base: #1a1c2b;
+    -fx-background: #07080f;
+    -fx-accent: #7c5cff;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-font-family: "Poppins";
+    -fx-font-size: 13px;
+
+    -text: #f3f4fb;
+    -text-muted: #9ba1bd;
+    -text-faint: #636a89;
+    -violet: #7c5cff;
+    -violet-soft: #c4b5fd;
+    -cyan: #22d3ee;
+    -success: #34d399;
+    -danger: #f87171;
+    -warning: #fbbf24;
+}
+
+.label {
+    -fx-text-fill: -text;
+}
+
+/* ---------- Fenêtre ---------- */
+
+.window-root {
+    -fx-background-color: transparent;
+}
+
+.window-shadow {
+    -fx-background-color: #07080f;
+    -fx-background-radius: 16;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 22, 0.1, 0, 6);
+}
+
+.window {
+    -fx-background-color: #07080f;
+}
+
+.window-border {
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+}
+
+.title-bar {
+    -fx-padding: 0 8 0 18;
+    -fx-min-height: 46;
+    -fx-pref-height: 46;
+}
+
+.title-name {
+    -fx-font-family: "Poppins SemiBold";
+    -fx-text-fill: -text;
+}
+
+.window-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 8;
+    -fx-min-width: 38;
+    -fx-min-height: 30;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+    transition: -fx-background-color 150ms ease;
+}
+
+.window-button .icon {
+    -fx-fill: -text-muted;
+}
+
+.window-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+}
+
+.window-button:hover .icon {
+    -fx-fill: -text;
+}
+
+.window-button.close:hover {
+    -fx-background-color: #e5484d;
+}
+
+.window-button.close:hover .icon {
+    -fx-fill: white;
+}
+
+/* ---------- Logo ---------- */
+
+.logo-mark {
+    -fx-background-color: linear-gradient(to bottom right, #8b6dff, #22d3ee);
+    -fx-effect: dropshadow(gaussian, rgba(124, 92, 255, 0.55), 16, 0, 0, 3);
+}
+
+.logo-letter {
+    -fx-text-fill: white;
+    -fx-font-family: "Poppins ExtraBold";
+}
+
+/* ---------- Barre latérale ---------- */
+
+.sidebar {
+    -fx-background-color: rgba(255, 255, 255, 0.025);
+    -fx-border-color: transparent rgba(255, 255, 255, 0.06) transparent transparent;
+    -fx-border-width: 0 1 0 0;
+}
+
+.nav-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 14;
+    -fx-min-width: 48;
+    -fx-min-height: 48;
+    -fx-pref-width: 48;
+    -fx-pref-height: 48;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+    transition: -fx-background-color 180ms ease;
+}
+
+.nav-button .icon {
+    -fx-fill: -text-faint;
+}
+
+.nav-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.06);
+}
+
+.nav-button:hover .icon {
+    -fx-fill: -text-muted;
+}
+
+.nav-button:selected {
+    -fx-background-color: rgba(124, 92, 255, 0.16);
+}
+
+.nav-button:selected .icon {
+    -fx-fill: white;
+}
+
+.logout-button:hover {
+    -fx-background-color: rgba(248, 113, 113, 0.14);
+}
+
+.logout-button:hover .icon {
+    -fx-fill: -danger;
+}
+
+.nav-indicator {
+    -fx-background-color: linear-gradient(to bottom, #8b6dff, #22d3ee);
+    -fx-background-radius: 0 4 4 0;
+    -fx-effect: dropshadow(gaussian, rgba(124, 92, 255, 0.9), 10, 0.3, 0, 0);
+}
+
+.avatar {
+    -fx-background-color: rgba(255, 255, 255, 0.06);
+    -fx-background-radius: 10;
+}
+
+.tooltip {
+    -fx-background-color: #171929;
+    -fx-background-radius: 8;
+    -fx-text-fill: #f3f4fb;
+    -fx-font-family: "Poppins";
+    -fx-font-size: 12px;
+    -fx-padding: 6 10;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 12, 0, 0, 4);
+}
+
+/* ---------- Composants communs ---------- */
+
+.glass-card {
+    -fx-background-color: linear-gradient(to bottom, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.025));
+    -fx-background-radius: 18;
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-border-radius: 18;
+    -fx-padding: 22;
+}
+
+.muted {
+    -fx-text-fill: -text-muted;
+}
+
+.muted-small {
+    -fx-text-fill: -text-muted;
+    -fx-font-size: 12px;
+}
+
+.field {
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(255, 255, 255, 0.09);
+    -fx-border-radius: 10;
+    -fx-text-fill: -text;
+    -fx-prompt-text-fill: -text-faint;
+    -fx-highlight-fill: -violet;
+    -fx-padding: 10 14;
+    transition: -fx-border-color 150ms ease;
+}
+
+.field:focused {
+    -fx-background-color: rgba(124, 92, 255, 0.08);
+    -fx-border-color: -violet;
+}
+
+.secondary-button {
+    -fx-background-color: rgba(255, 255, 255, 0.07);
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-border-radius: 10;
+    -fx-text-fill: -text;
+    -fx-font-family: "Poppins Medium";
+    -fx-padding: 9 16;
+    -fx-graphic-text-gap: 8;
+    -fx-cursor: hand;
+    transition: -fx-background-color 150ms ease;
+}
+
+.secondary-button .icon {
+    -fx-fill: -text-muted;
+}
+
+.secondary-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.12);
+}
+
+.secondary-button:pressed {
+    -fx-background-color: rgba(255, 255, 255, 0.16);
+}
+
+.ghost-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -text-muted;
+    -fx-cursor: hand;
+}
+
+.ghost-button:hover {
+    -fx-text-fill: white;
+}
+
+.icon-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 8;
+    -fx-padding: 8;
+    -fx-cursor: hand;
+}
+
+.icon-button .icon {
+    -fx-fill: -text-muted;
+}
+
+.icon-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+}
+
+.icon-button:hover .icon {
+    -fx-fill: white;
+}
+
+.link, .link:visited {
+    -fx-text-fill: #a5b4fc;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+    -fx-underline: false;
+}
+
+.link:hover {
+    -fx-underline: true;
+}
+
+.divider {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-min-height: 1;
+    -fx-max-height: 1;
+}
+
+/* ---------- Connexion ---------- */
+
+.login-card {
+    -fx-background-color: linear-gradient(to bottom, rgba(24, 26, 44, 0.85), rgba(12, 13, 24, 0.85));
+    -fx-padding: 40 40 32 40;
+}
+
+.login-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: 700;
+    -fx-text-fill: white;
+}
+
+.login-subtitle {
+    -fx-text-fill: -text-muted;
+    -fx-text-alignment: center;
+    -fx-font-size: 13.5px;
+}
+
+.microsoft-button {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-text-fill: #18181b;
+    -fx-font-size: 14px;
+    -fx-font-family: "Poppins SemiBold";
+    -fx-padding: 14 18;
+    -fx-graphic-text-gap: 12;
+    -fx-cursor: hand;
+    transition: -fx-scale-x 150ms ease, -fx-scale-y 150ms ease;
+}
+
+.microsoft-button:hover {
+    -fx-background-color: #ececf3;
+}
+
+.microsoft-button:pressed {
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+.separator-label {
+    -fx-text-fill: -text-faint;
+    -fx-font-size: 10.5px;
+    -fx-font-family: "Poppins SemiBold";
+}
+
+.code-box {
+    -fx-background-color: rgba(124, 92, 255, 0.10);
+    -fx-background-radius: 14;
+    -fx-border-color: rgba(124, 92, 255, 0.4);
+    -fx-border-radius: 14;
+    -fx-border-style: segments(6, 4);
+    -fx-padding: 12 14 12 22;
+}
+
+.device-code {
+    -fx-font-family: "Consolas", "Cascadia Mono", monospace;
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.spinner {
+    -fx-progress-color: -violet;
+}
+
+/* ---------- Accueil ---------- */
+
+.pill {
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-border-radius: 999;
+    -fx-padding: 8 16 8 14;
+}
+
+.status-dot {
+    -fx-min-width: 8;
+    -fx-min-height: 8;
+    -fx-max-width: 8;
+    -fx-max-height: 8;
+    -fx-background-radius: 4;
+    -fx-background-color: -danger;
+    -fx-effect: dropshadow(gaussian, rgba(248, 113, 113, 0.8), 8, 0.3, 0, 0);
+}
+
+.status-dot:online {
+    -fx-background-color: -success;
+    -fx-effect: dropshadow(gaussian, rgba(52, 211, 153, 0.9), 8, 0.3, 0, 0);
+}
+
+.status-ring {
+    -fx-min-width: 8;
+    -fx-min-height: 8;
+    -fx-max-width: 8;
+    -fx-max-height: 8;
+    -fx-background-radius: 4;
+    -fx-background-color: transparent;
+    -fx-border-color: -success;
+    -fx-border-radius: 4;
+    -fx-border-width: 1;
+}
+
+.status-text {
+    -fx-font-size: 12.5px;
+    -fx-font-family: "Poppins Medium";
+}
+
+.status-players .icon {
+    -fx-fill: -text-muted;
+}
+
+.status-value {
+    -fx-text-fill: -text-muted;
+    -fx-font-size: 12.5px;
+}
+
+.status-muted {
+    -fx-text-fill: -text-faint;
+    -fx-font-size: 12.5px;
+}
+
+.eyebrow {
+    -fx-text-fill: #a78bfa;
+    -fx-font-size: 13px;
+    -fx-font-family: "Poppins SemiBold";
+}
+
+.hero-title {
+    -fx-font-size: 82px;
+    -fx-font-family: "Poppins ExtraBold";
+    /* couleur gérée par le code (Shimmer) : un dégradé traversé par un reflet */
+    -fx-padding: -8 0 -10 -3;
+}
+
+.hero-tagline {
+    -fx-text-fill: -text-muted;
+    -fx-font-size: 17px;
+}
+
+.chip {
+    -fx-background-color: rgba(124, 92, 255, 0.14);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(124, 92, 255, 0.32);
+    -fx-border-radius: 999;
+    -fx-text-fill: -violet-soft;
+    -fx-font-size: 12px;
+    -fx-font-family: "Poppins Medium";
+    -fx-padding: 6 14;
+}
+
+.chip-muted {
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-text-fill: -text-muted;
+}
+
+.play-card {
+    -fx-background-color: linear-gradient(to bottom, rgba(26, 28, 48, 0.78), rgba(14, 15, 28, 0.78));
+    -fx-background-radius: 22;
+    -fx-border-radius: 22;
+    -fx-padding: 18 18 18 20;
+}
+
+.player-name {
+    -fx-text-fill: white;
+    -fx-font-size: 17px;
+    -fx-font-family: "Poppins SemiBold";
+}
+
+.progress-step {
+    -fx-font-size: 12.5px;
+    -fx-font-family: "Poppins Medium";
+}
+
+.progress-percent {
+    -fx-text-fill: -violet-soft;
+    -fx-font-size: 12.5px;
+    -fx-font-family: "Poppins SemiBold";
+}
+
+.smooth-progress {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-background-radius: 3;
+}
+
+.smooth-progress .fill {
+    -fx-background-color: linear-gradient(to right, #7c5cff, #22d3ee);
+    -fx-background-radius: 3;
+    -fx-effect: dropshadow(gaussian, rgba(34, 211, 238, 0.6), 8, 0.2, 0, 0);
+}
+
+.play-button {
+    -fx-background-color: linear-gradient(to right, #7c5cff, #4f8bff 60%, #22d3ee);
+    -fx-background-radius: 16;
+    -fx-text-fill: white;
+    -fx-font-size: 17px;
+    -fx-font-weight: 700;
+    -fx-min-width: 210;
+    -fx-min-height: 60;
+    -fx-pref-height: 60;
+    -fx-padding: 0 34 0 28;
+    -fx-graphic-text-gap: 12;
+    -fx-cursor: hand;
+    transition: -fx-scale-x 220ms ease-out, -fx-scale-y 220ms ease-out;
+}
+
+.play-glow {
+    -fx-background-color: linear-gradient(to right, #7c5cff, #4f8bff 60%, #22d3ee);
+    -fx-background-radius: 18;
+    -fx-translate-y: 8;
+}
+
+.play-shine {
+    -fx-background-color: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.5), transparent);
+}
+
+/* ---------- Vitrine 3D ---------- */
+
+.showcase-glow {
+    -fx-background-color: radial-gradient(center 50% 50%, radius 50%,
+            rgba(124, 92, 255, 0.30) 0%, rgba(34, 211, 238, 0.10) 45%, transparent 70%);
+}
+
+.showcase-shadow {
+    -fx-background-color: radial-gradient(center 50% 50%, radius 50%, rgba(0, 0, 0, 0.55), transparent);
+}
+
+.play-button .icon {
+    -fx-fill: white;
+}
+
+.play-button:hover {
+    -fx-background-color: linear-gradient(to right, #8b6dff, #5d97ff 60%, #3ddcf2);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+
+.play-button:pressed {
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+.play-button:disabled {
+    -fx-opacity: 0.85;
+    -fx-background-color: linear-gradient(to right, #34385a, #262a42);
+    -fx-effect: null;
+}
+
+/* ---------- Pages ---------- */
+
+.page-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: 700;
+    -fx-text-fill: white;
+}
+
+.page-subtitle {
+    -fx-text-fill: -text-muted;
+}
+
+.page-scroll, .page-scroll > .viewport {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+}
+
+.card-head .icon {
+    -fx-fill: #a78bfa;
+}
+
+.card-title {
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-family: "Poppins SemiBold";
+}
+
+.big-value {
+    -fx-text-fill: -violet-soft;
+    -fx-font-size: 20px;
+    -fx-font-weight: 700;
+}
+
+.setting-name {
+    -fx-font-size: 13.5px;
+    -fx-font-family: "Poppins Medium";
+}
+
+.setting-row {
+    -fx-padding: 4 0;
+}
+
+.path-label {
+    -fx-text-fill: -text-muted;
+    -fx-font-family: "Consolas", "Cascadia Mono", monospace;
+    -fx-font-size: 12px;
+    -fx-background-color: rgba(0, 0, 0, 0.25);
+    -fx-background-radius: 8;
+    -fx-padding: 8 10;
+}
+
+/* Slider */
+.slider .track {
+    -fx-background-color: rgba(255, 255, 255, 0.10);
+    -fx-background-radius: 3;
+    -fx-background-insets: 0;
+    -fx-padding: 3;
+}
+
+.slider .thumb {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-background-insets: 0;
+    -fx-padding: 9;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(124, 92, 255, 0.8), 10, 0.3, 0, 0);
+}
+
+/* Interrupteur */
+.switch {
+    -fx-min-width: 42;
+    -fx-pref-width: 42;
+    -fx-min-height: 24;
+    -fx-pref-height: 24;
+}
+
+.switch .track {
+    -fx-background-color: rgba(255, 255, 255, 0.12);
+    -fx-background-radius: 12;
+    transition: -fx-opacity 200ms ease;
+}
+
+.switch:selected .track {
+    -fx-background-color: linear-gradient(to right, #7c5cff, #22d3ee);
+}
+
+.switch .thumb {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-min-width: 20;
+    -fx-min-height: 20;
+    -fx-pref-width: 20;
+    -fx-pref-height: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 4, 0, 0, 1);
+}
+
+/* Barres de défilement fines */
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:vertical {
+    -fx-pref-width: 10;
+    -fx-padding: 2;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: rgba(255, 255, 255, 0.14);
+    -fx-background-radius: 4;
+    -fx-background-insets: 0;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.25);
+}
+
+.scroll-bar .increment-button, .scroll-bar .decrement-button {
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .increment-arrow, .scroll-bar .decrement-arrow {
+    -fx-padding: 0;
+    -fx-shape: " ";
+}
+
+/* ---------- Notifications ---------- */
+
+.toast {
+    -fx-background-color: rgba(20, 22, 36, 0.95);
+    -fx-background-radius: 14;
+    -fx-border-color: rgba(255, 255, 255, 0.09);
+    -fx-border-radius: 14;
+    -fx-padding: 14 18 14 16;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 20, 0, 0, 6);
+    -fx-cursor: hand;
+}
+
+.toast-dot {
+    -fx-min-width: 9;
+    -fx-min-height: 9;
+    -fx-max-width: 9;
+    -fx-max-height: 9;
+    -fx-background-radius: 5;
+    -fx-translate-y: 6;
+}
+
+.toast-dot.info {
+    -fx-background-color: #60a5fa;
+}
+
+.toast-dot.success {
+    -fx-background-color: -success;
+}
+
+.toast-dot.error {
+    -fx-background-color: -danger;
+}
+
+.toast-title {
+    -fx-text-fill: white;
+    -fx-font-family: "Poppins SemiBold";
+}
+
+.toast-message {
+    -fx-text-fill: -text-muted;
+    -fx-font-size: 12px;
+}
