@@ -32,6 +32,7 @@ public final class AppContext {
     public final Branding branding;
     public final ObjectProperty<Account> account = new SimpleObjectProperty<>();
     public final PlayController play = new PlayController(this);
+    public final NewsStore news;
     private AppShell shell;
 
     public AppContext(LauncherCore core, Stage stage, HostServices host) {
@@ -39,6 +40,7 @@ public final class AppContext {
         this.stage = stage;
         this.host = host;
         this.branding = new Branding(core.gameDir);
+        this.news = new NewsStore(core.news);
     }
 
     public void attach(AppShell shell) {
@@ -96,7 +98,10 @@ public final class AppContext {
         return refreshed;
     }
 
-    /** Ouvre une page web, uniquement en HTTPS et sur un domaine de confiance ({@link LauncherConfig#TRUSTED_HOSTS}). */
+    /**
+     * Ouvre une page web, uniquement en HTTPS et sur un domaine de confiance
+     * ({@link LauncherConfig#TRUSTED_HOSTS}).
+     */
     public void open(String url) {
         URI uri;
         try {

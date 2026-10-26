@@ -14,6 +14,8 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
@@ -66,7 +68,10 @@ public final class AppShell {
         layout.setCenter(screenHost);
         layout.setRight(rail);
 
-        StackPane frame = new StackPane(new Backdrop(app.branding.image("background")), layout, toasts);
+        Backdrop backdrop = new Backdrop(app.branding.image("background"));
+        // Fond assombri partout sauf sur l'accueil (écrans de contenu, connexion).
+        router.currentProperty().addListener((o, old, id) -> backdrop.setDimmed(id != ScreenId.HOME));
+        StackPane frame = new StackPane(backdrop, layout, toasts);
         frame.getStyleClass().add("window");
 
         Scene scene;
@@ -95,6 +100,14 @@ public final class AppShell {
             stage.initStyle(StageStyle.TRANSPARENT);
         }
         Theme.apply(scene);
+        // Échap ramène à l'accueil depuis n'importe quel écran secondaire.
+        scene.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+            ScreenId current = router.currentProperty().get();
+            if (e.getCode() == KeyCode.ESCAPE && current != null && current != ScreenId.HOME) {
+                navigate(ScreenId.HOME);
+                e.consume();
+            }
+        });
         stage.setTitle(LauncherConfig.WINDOW_TITLE);
         stage.setResizable(false);
         stage.setScene(scene);

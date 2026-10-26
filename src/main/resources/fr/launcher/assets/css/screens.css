@@ -81,3 +81,177 @@
     -fx-font-weight: bold;
     -fx-text-fill: -pi-yellow;
 }
+
+/* ---------- Détails clé / valeur ---------- */
+
+.detail-key {
+    -fx-text-fill: -pi-text-3;
+    -fx-font-size: 13px;
+    -fx-min-width: 110;
+}
+
+.detail-value {
+    -fx-text-fill: -pi-text;
+    -fx-font-size: 13px;
+}
+
+/* ---------- Actualités ---------- */
+
+.news-card {
+    -fx-padding: 0;
+    -fx-cursor: hand;
+}
+
+.news-card:hover {
+    -fx-border-color: rgba(255, 210, 54, 0.6);
+}
+
+.news-card:focus-visible {
+    -fx-border-color: -pi-yellow;
+    -fx-border-width: 2;
+}
+
+.news-featured-body {
+    -fx-padding: 24 26;
+}
+
+.news-card-body {
+    -fx-padding: 14 16 16 16;
+}
+
+.news-featured-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+}
+
+.news-card-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+}
+
+.news-summary {
+    -fx-text-fill: -pi-text-2;
+    -fx-font-size: 13px;
+}
+
+.news-date {
+    -fx-text-fill: -pi-text-3;
+    -fx-font-size: 12px;
+}
+
+.news-read {
+    -fx-text-fill: -pi-yellow;
+    -fx-font-weight: 600;
+    -fx-font-size: 13px;
+}
+
+.news-read .icon {
+    -fx-fill: -pi-yellow;
+}
+
+/* ---------- Installation ---------- */
+
+.stage-row {
+    -fx-padding: 9 12;
+    -fx-background-radius: 10;
+}
+
+.stage-row:running {
+    -fx-background-color: -pi-yellow-soft;
+}
+
+.stage-mark {
+    -fx-min-width: 26;
+    -fx-min-height: 26;
+    -fx-max-width: 26;
+    -fx-max-height: 26;
+    -fx-background-radius: 999;
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+}
+
+.stage-mark .icon {
+    -fx-fill: -pi-text-3;
+}
+
+.stage-row:running .stage-mark {
+    -fx-background-color: -pi-yellow;
+}
+
+.stage-row:running .stage-mark .icon {
+    -fx-fill: -pi-yellow-ink;
+}
+
+.stage-row:done .stage-mark {
+    -fx-background-color: -pi-success-soft;
+}
+
+.stage-row:done .stage-mark .icon {
+    -fx-fill: -pi-success;
+}
+
+.stage-row:failed .stage-mark {
+    -fx-background-color: -pi-danger-soft;
+}
+
+.stage-row:failed .stage-mark .icon {
+    -fx-fill: -pi-danger;
+}
+
+.stage-name {
+    -fx-font-size: 14px;
+}
+
+.stage-status {
+    -fx-font-size: 12px;
+    -fx-text-fill: -pi-text-2;
+}
+
+.stage-row:failed .stage-status {
+    -fx-text-fill: #fca5a5;
+}
+
+.result-ok {
+    -fx-text-fill: #86efac;
+    -fx-font-weight: 600;
+}
+
+.result-failed {
+    -fx-text-fill: #fca5a5;
+    -fx-font-weight: 600;
+}
+
+.result-error {
+    -fx-text-fill: #fecaca;
+}
+
+/* ---------- Aide : questions fréquentes ---------- */
+
+.faq-item > .title {
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+    -fx-background-radius: 10;
+    -fx-padding: 10 12;
+    -fx-cursor: hand;
+}
+
+.faq-item > .title > .text {
+    -fx-fill: -pi-text;
+    -fx-font-weight: 600;
+}
+
+.faq-item > .title > .arrow-button > .arrow {
+    -fx-background-color: -pi-yellow;
+}
+
+.faq-item:expanded > .title {
+    -fx-background-color: -pi-yellow-soft;
+}
+
+.faq-item > .content {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 10 12 14 12;
+}
+
+.accordion {
+    -fx-spacing: 6;
+}

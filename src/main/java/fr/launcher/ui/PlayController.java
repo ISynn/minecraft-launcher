@@ -17,6 +17,8 @@ import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.util.Duration;
 
+import java.time.Instant;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,8 +55,18 @@ public final class PlayController {
         }
     }
 
+    /**
+     * Bilan de la dernière installation ou vérification (pas de la partie elle-même).
+     *
+     * @param failedStage étape en échec (1 à 5), 0 si réussite
+     */
+    public record RunResult(boolean success, boolean deepVerify, Instant finishedAt, java.time.Duration duration,
+                            long downloadedBytes, int failedStage, String error) {
+    }
+
     private final AppContext app;
     private final Progress progress = new Progress();
+    private final ReadOnlyObjectWrapper<RunResult> lastResult = new ReadOnlyObjectWrapper<>();
     private final ReadOnlyObjectWrapper<Phase> phase = new ReadOnlyObjectWrapper<>(Phase.READY);
     private final ReadOnlyStringWrapper error = new ReadOnlyStringWrapper("");
     private final ReadOnlyStringWrapper versionLabel = new ReadOnlyStringWrapper("");
@@ -82,6 +94,9 @@ public final class PlayController {
         if (phase.get().busy()) return;
         progress.reset();
         error.set("");
+        long started = System.nanoTime();
+        // Un échec au démarrage du jeu, après une installation réussie, ne doit pas effacer ce bilan.
+        AtomicBoolean installed = new AtomicBoolean();
         installedBefore = app.core.installer.hasInstallation();
         phase.set(Phase.PREPARING);
         installTicker.play();
@@ -91,7 +106,11 @@ public final class PlayController {
         Fx.async(() -> {
             Account account = app.freshAccount();
             GameInstaller.Installation installation = app.core.installer.install(progress, deepVerify);
-            Platform.runLater(() -> versionLabel.set(installation.profile().displayName()));
+            installed.set(true);
+            Platform.runLater(() -> {
+                versionLabel.set(installation.profile().displayName());
+                lastResult.set(result(true, deepVerify, started, ""));
+            });
             if (!launch) return null;
             Platform.runLater(() -> {
                 installTicker.stop();
@@ -110,8 +129,15 @@ public final class PlayController {
             installTicker.stop();
             LOG.log(Level.WARNING, launch ? "Lancement impossible" : "Vérification impossible", failure);
             error.set(Fx.message(failure));
+            if (!installed.get()) lastResult.set(result(false, deepVerify, started, error.get()));
             phase.set(Phase.ERROR);
         });
+    }
+
+    private RunResult result(boolean success, boolean deepVerify, long startedNanos, String message) {
+        return new RunResult(success, deepVerify, Instant.now(),
+                java.time.Duration.ofNanos(System.nanoTime() - startedNanos), progress.totalNetworkBytes(),
+                success ? 0 : Math.max(1, progress.stageIndex()), message);
     }
 
     private void refreshInstallPhase() {
@@ -133,7 +159,8 @@ public final class PlayController {
         process.onExit().thenAccept(p -> Platform.runLater(() -> onExit(p.exitValue())));
         Thread.ofVirtual().name("game-window-watcher").start(() -> {
             try {
-                boolean window = GameWindowWatcher.waitForWindow(app.core.launcher.outputLog(), process, WINDOW_TIMEOUT);
+                boolean window = GameWindowWatcher.waitForWindow(app.core.launcher.outputLog(), process,
+                        WINDOW_TIMEOUT);
                 if (process.isAlive()) Platform.runLater(() -> onWindow(window));
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -155,9 +182,15 @@ public final class PlayController {
         if (code == 0) {
             phase.set(Phase.READY);
         } else {
-            error.set("Le jeu s'est arrêté de façon inattendue (code " + code + "). Détails : logs/game-output.log");
+            error.set("Le jeu s'est arrêté de façon inattendue (code " + code + ")."
+                    + " Détails : logs/game-output.log");
             phase.set(Phase.ERROR);
         }
+    }
+
+    /** Bilan de la dernière installation ou vérification depuis l'ouverture du launcher (null si aucune). */
+    public ReadOnlyObjectProperty<RunResult> lastResultProperty() {
+        return lastResult.getReadOnlyProperty();
     }
 
     public Progress progress() {

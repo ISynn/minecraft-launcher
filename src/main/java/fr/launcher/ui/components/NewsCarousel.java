@@ -17,7 +17,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Tooltip;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
@@ -26,13 +25,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -42,9 +35,6 @@ import java.util.function.Consumer;
 public final class NewsCarousel extends StackPane {
 
     private static final PseudoClass ACTIVE = PseudoClass.getPseudoClass("active");
-    private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.FRANCE);
-    private static final DateTimeFormatter DAY = DateTimeFormatter.ofPattern("d MMM", Locale.FRANCE)
-            .withZone(ZoneId.systemDefault());
     private static final double RADIUS = 18;
 
     private final Consumer<String> openUrl;
@@ -52,7 +42,6 @@ public final class NewsCarousel extends StackPane {
     private final HBox dots = new HBox(6);
     private final HBox sourceBox = new HBox();
     private final HBox controls;
-    private final Map<String, Image> images = new HashMap<>();
     /** Délai avant la carte suivante, relancé après chaque changement (manuel ou automatique). */
     private final PauseTransition autoplay = new PauseTransition(Duration.seconds(7));
     private List<NewsArticle> articles = List.of();
@@ -127,9 +116,10 @@ public final class NewsCarousel extends StackPane {
     public void setFeed(NewsFeed feed, String sourceName) {
         articles = feed.articles();
         index = 0;
-        sourceBox.getChildren().setAll(chip(sourceBadge(feed, sourceName)));
+        sourceBox.getChildren().setAll(chip(NewsCards.sourceBadge(feed, sourceName)));
         if (articles.isEmpty()) {
-            slides.getChildren().setAll(new EmptyState(Icons.NEWS, "Aucune actualité", "Rien à afficher pour le moment."));
+            slides.getChildren().setAll(
+                    new EmptyState(Icons.NEWS, "Aucune actualité", "Rien à afficher pour le moment."));
             controls.setVisible(false);
             return;
         }
@@ -146,7 +136,7 @@ public final class NewsCarousel extends StackPane {
         slides.getChildren().setAll(slide(articles.getFirst()));
         updateDots();
         // Précharge la vignette suivante pour que la transition ne montre pas une carte vide.
-        if (articles.size() > 1) image(articles.get(1));
+        if (articles.size() > 1) NewsCards.image(articles.get(1));
         updateAutoplay();
     }
 
@@ -187,7 +177,7 @@ public final class NewsCarousel extends StackPane {
         anim.setOnFinished(e -> slides.getChildren().remove(old));
         anim.play();
         updateDots();
-        if (index + 1 < n) image(articles.get(index + 1));
+        if (index + 1 < n) NewsCards.image(articles.get(index + 1));
         autoplay.stop();
         updateAutoplay();
     }
@@ -200,19 +190,11 @@ public final class NewsCarousel extends StackPane {
 
     private Node slide(NewsArticle article) {
         CoverImage cover = new CoverImage();
-        cover.setImage(image(article));
+        cover.setImage(NewsCards.image(article));
         Region shade = new Region();
         shade.getStyleClass().add("carousel-shade");
 
-        HBox meta = new HBox(8);
-        meta.setAlignment(Pos.CENTER_LEFT);
-        if (!article.category().isBlank()) meta.getChildren().add(chip(Ui.badge(article.category(), Ui.Tone.ACCENT)));
-        if (article.recent()) meta.getChildren().add(chip(Ui.badge("Nouveau", Ui.Tone.DANGER)));
-        article.localDate().ifPresent(d -> {
-            Label date = new Label(DATE.format(d));
-            date.getStyleClass().add("carousel-date");
-            meta.getChildren().add(date);
-        });
+        HBox meta = NewsCards.overlayMeta(article);
 
         Label title = new Label(article.title());
         title.getStyleClass().add("carousel-title");
@@ -241,23 +223,5 @@ public final class NewsCarousel extends StackPane {
     private static Node chip(Node badge) {
         badge.getStyleClass().add("carousel-chip");
         return badge;
-    }
-
-    private Image image(NewsArticle article) {
-        if (article.imageUrl().isBlank()) return null;
-        // Chargement en arrière-plan, une seule fois par vignette.
-        return images.computeIfAbsent(article.imageUrl(), url -> new Image(url, true));
-    }
-
-    private Node sourceBadge(NewsFeed feed, String sourceName) {
-        return switch (feed.source()) {
-            case LIVE -> Ui.badge(sourceName, Ui.Tone.NEUTRAL);
-            case CACHE -> {
-                Label badge = Ui.badge("Hors ligne · copie du " + DAY.format(feed.fetchedAt()), Ui.Tone.WARNING);
-                badge.setTooltip(Ui.tooltip("Le blog est injoignable : dernière version enregistrée."));
-                yield badge;
-            }
-            case DEMO -> Ui.demoBadge();
-        };
     }
 }

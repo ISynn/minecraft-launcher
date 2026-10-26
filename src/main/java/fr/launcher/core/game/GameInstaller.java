@@ -11,6 +11,7 @@ import fr.launcher.core.modpack.ModpackSync;
 import fr.launcher.util.Json;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -27,7 +28,10 @@ import java.util.stream.Stream;
 public final class GameInstaller {
 
     private static final String RESOURCES = "https://resources.download.minecraft.net/";
-    private static final int STAGES = 5;
+    /** Les étapes, dans l'ordre : l'écran Installation les affiche telles quelles. */
+    public static final List<String> STAGE_NAMES = List.of(
+            "Versions et modpack", "Java", "Minecraft et bibliothèques", "Ressources du jeu", "Mods du serveur");
+    private static final int STAGES = STAGE_NAMES.size();
 
     private final Path gameDir;
     private final VersionResolver resolver;
@@ -46,7 +50,7 @@ public final class GameInstaller {
 
     /** @param deepVerify recalcule le SHA-1 de chaque fichier (bouton « Vérifier les fichiers »). */
     public Installation install(Progress progress, boolean deepVerify) throws IOException, InterruptedException {
-        progress.stage(1, STAGES, "Versions et modpack");
+        progress.stage(1, STAGES, STAGE_NAMES.get(0));
         Optional<ModpackManifest> manifest = modpack.fetch();
         String mcVersion = manifest.map(ModpackManifest::minecraft).filter(s -> !s.isBlank())
                 .orElse(LauncherConfig.MINECRAFT_VERSION);
@@ -54,10 +58,10 @@ public final class GameInstaller {
                 .orElse(LauncherConfig.FABRIC_LOADER);
         GameProfile profile = resolver.resolve(mcVersion, loader, progress);
 
-        progress.stage(2, STAGES, "Java");
+        progress.stage(2, STAGES, STAGE_NAMES.get(1));
         Path java = runtime.install(profile.vanilla(), progress);
 
-        progress.stage(3, STAGES, "Minecraft et bibliothèques");
+        progress.stage(3, STAGES, STAGE_NAMES.get(2));
         List<DownloadTask> game = new ArrayList<>();
         JsonObject client = profile.vanilla().getAsJsonObject("downloads").getAsJsonObject("client");
         game.add(new DownloadTask(client.get("url").getAsString(), clientJar(profile),
@@ -65,10 +69,10 @@ public final class GameInstaller {
         profile.libraries().forEach(lib -> game.add(lib.task()));
         Downloader.downloadAll(progress.step(), game, progress);
 
-        progress.stage(4, STAGES, "Ressources du jeu");
+        progress.stage(4, STAGES, STAGE_NAMES.get(3));
         Downloader.downloadAll(progress.step(), assetTasks(profile.vanilla(), progress, deepVerify), progress);
 
-        progress.stage(5, STAGES, "Mods du serveur");
+        progress.stage(5, STAGES, STAGE_NAMES.get(4));
         if (manifest.isPresent()) modpack.sync(manifest.get(), progress);
 
         return new Installation(profile, java);
@@ -105,6 +109,46 @@ public final class GameInstaller {
             return dirs.anyMatch(dir -> Files.isRegularFile(dir.resolve(dir.getFileName() + ".json")));
         } catch (IOException e) {
             return false;
+        }
+    }
+
+    /**
+     * Espace occupé par chaque partie de l'installation, en octets (dossiers absents : 0).
+     * Parcourt des milliers de fichiers : à appeler hors du thread graphique.
+     */
+    public Map<String, Long> diskUsage() {
+        Map<String, Long> usage = new LinkedHashMap<>();
+        usage.put("Minecraft", size(gameDir.resolve("versions")));
+        usage.put("Bibliothèques", size(gameDir.resolve("libraries")));
+        usage.put("Ressources", size(gameDir.resolve("assets")));
+        usage.put("Java", size(gameDir.resolve("runtime")));
+        usage.put("Mods", size(gameDir.resolve("mods")));
+        return usage;
+    }
+
+    /** Runtimes Java de Mojang installés (par ex. « java-runtime-epsilon »). */
+    public List<String> installedRuntimes() {
+        Path dir = gameDir.resolve("runtime");
+        if (!Files.isDirectory(dir)) return List.of();
+        try (Stream<Path> dirs = Files.list(dir)) {
+            return dirs.filter(Files::isDirectory).map(d -> d.getFileName().toString()).sorted().toList();
+        } catch (IOException e) {
+            return List.of();
+        }
+    }
+
+    private static long size(Path dir) {
+        if (!Files.isDirectory(dir)) return 0;
+        try (Stream<Path> files = Files.walk(dir)) {
+            return files.filter(Files::isRegularFile).mapToLong(f -> {
+                try {
+                    return Files.size(f);
+                } catch (IOException e) {
+                    return 0;
+                }
+            }).sum();
+        } catch (IOException | UncheckedIOException e) {
+            return 0;
         }
     }
 

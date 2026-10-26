@@ -51,7 +51,7 @@ public final class NavRail extends StackPane {
             button.setGraphic(Fx.icon(id.icon, 22));
             button.getStyleClass().add("nav-item");
             button.setToggleGroup(group);
-            button.setTooltip(Ui.tooltip(id.label));
+            button.setTooltip(Ui.tooltip(id == ScreenId.HOME ? id.label + " (Échap)" : id.label));
             button.setAccessibleText(id.label);
             button.setOnAction(e -> onNavigate.accept(id));
             buttons.put(id, button);

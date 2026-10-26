@@ -12,6 +12,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.shape.SVGPath;
 import javafx.util.Duration;
 
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -77,6 +78,15 @@ public final class Fx {
         anim.setInterpolator(EASE_OUT);
         anim.setDelay(Duration.millis(delayMs));
         anim.play();
+    }
+
+    /** Taille lisible en français : « 475 Mo », « 1,2 Go » (espace insécable : jamais coupée en fin de ligne). */
+    public static String size(long bytes) {
+        if (bytes < 1024 * 1024) return (bytes == 0 ? 0 : Math.max(1, bytes / 1024)) + " Ko";
+        double mb = bytes / 1_048_576.0;
+        return mb < 1024
+                ? String.format(Locale.FRANCE, "%.0f Mo", mb)
+                : String.format(Locale.FRANCE, "%.1f Go", mb / 1024);
     }
 
     public static String message(Throwable t) {

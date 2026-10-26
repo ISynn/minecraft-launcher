@@ -1,9 +1,11 @@
 package fr.launcher.ui.shell;
 
+import javafx.animation.FadeTransition;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.util.Duration;
 
 import java.util.Optional;
 
@@ -16,6 +18,7 @@ import java.util.Optional;
 final class Backdrop extends StackPane {
 
     private final ImageView view = new ImageView();
+    private final Region dim = new Region();
 
     Backdrop(Optional<Image> image) {
         getStyleClass().add("backdrop");
@@ -24,7 +27,9 @@ final class Backdrop extends StackPane {
         fallback.getStyleClass().add("backdrop-fallback");
         Region scrim = new Region();
         scrim.getStyleClass().add("backdrop-scrim");
-        getChildren().addAll(fallback, view, scrim);
+        dim.getStyleClass().add("backdrop-dim");
+        dim.setOpacity(0);
+        getChildren().addAll(fallback, view, scrim, dim);
 
         view.setPreserveRatio(true);
         view.setSmooth(true);
@@ -38,6 +43,16 @@ final class Backdrop extends StackPane {
             });
         });
         setMouseTransparent(true);
+    }
+
+    /**
+     * Assombrit le fond pour les écrans de contenu : l'illustration s'efface derrière le texte,
+     * et reprend toute sa place sur l'accueil.
+     */
+    void setDimmed(boolean dimmed) {
+        FadeTransition fade = new FadeTransition(Duration.millis(260), dim);
+        fade.setToValue(dimmed ? 1 : 0);
+        fade.play();
     }
 
     /** Recadrage « cover » : l'image remplit la fenêtre sans déformation, centrée. */

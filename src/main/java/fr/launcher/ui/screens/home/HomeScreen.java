@@ -41,7 +41,6 @@ public final class HomeScreen implements Screen {
     private final NewsCarousel news;
     private final ServerStatusPill server = new ServerStatusPill();
     private boolean shown;
-    private boolean newsRequested;
 
     /** Actif seulement pendant une installation : met à jour bouton et bandeau à partir de la progression. */
     private final AnimationTimer installTicker = new AnimationTimer() {
@@ -86,6 +85,9 @@ public final class HomeScreen implements Screen {
         playButton = new PlayButton(play::play);
         strip = new StatusStrip(() -> app.openFolder(app.core.logsDir));
         news = new NewsCarousel(app::open);
+        app.news.feedProperty().addListener((o, old, feed) -> {
+            if (feed != null) news.setFeed(feed, app.news.sourceName());
+        });
 
         BorderPane.setAlignment(server, Pos.TOP_LEFT);
         root.setTop(server);
@@ -148,11 +150,7 @@ public final class HomeScreen implements Screen {
     @Override
     public void onShow() {
         shown = true;
-        if (!newsRequested) {
-            newsRequested = true;
-            Fx.async(app.core.news::load, feed -> news.setFeed(feed, "Blog PokeIsland"),
-                    error -> app.error("Actualités indisponibles", error));
-        }
+        app.news.ensureLoaded();
         updateActivity();
     }
 
