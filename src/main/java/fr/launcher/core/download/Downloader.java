@@ -116,6 +116,7 @@ public final class Downloader {
                 out.write(buffer, 0, read);
                 digest.update(buffer, 0, read);
                 written += read;
+                progress.addNetworkBytes(read);
                 if (task.size() > 0) progress.addBytes(read);
             }
         } catch (IOException e) {

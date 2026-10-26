@@ -3,7 +3,6 @@ package fr.launcher.ui.screens.settings;
 import fr.launcher.core.settings.Settings;
 import fr.launcher.ui.AppContext;
 import fr.launcher.ui.Icons;
-import fr.launcher.ui.PlayController;
 import fr.launcher.ui.components.Switch;
 import fr.launcher.ui.components.Ui;
 import fr.launcher.ui.shell.Screen;
@@ -107,7 +106,7 @@ public final class SettingsScreen implements Screen {
             app.play.verify();
             app.shell().navigate(ScreenId.HOME);
         });
-        verify.disableProperty().bind(app.play.stateProperty().isNotEqualTo(PlayController.State.IDLE));
+        verify.disableProperty().bind(app.play.busyProperty());
 
         Button logs = Ui.ghost("Journal du launcher", Icons.CONSOLE);
         logs.setOnAction(e -> app.openFolder(app.core.logsDir));

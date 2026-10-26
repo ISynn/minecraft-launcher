@@ -13,6 +13,8 @@ public final class Progress {
     private final AtomicLong doneBytes = new AtomicLong();
     private final AtomicInteger totalFiles = new AtomicInteger();
     private final AtomicInteger doneFiles = new AtomicInteger();
+    /** Octets réellement reçus du réseau pendant l'étape (les fichiers déjà valides n'y comptent pas). */
+    private final AtomicLong networkBytes = new AtomicLong();
     private volatile String step = "";
     private volatile int stage;
     private volatile int stages;
@@ -21,7 +23,16 @@ public final class Progress {
     public void stage(int index, int count, String step) {
         this.stage = index;
         this.stages = count;
+        networkBytes.set(0);
         step(step);
+    }
+
+    /** Remet tout à zéro avant une nouvelle installation. */
+    public void reset() {
+        stage = 0;
+        stages = 0;
+        networkBytes.set(0);
+        begin("", 0, 0);
     }
 
     public int stageIndex() {
@@ -46,6 +57,15 @@ public final class Progress {
 
     void addBytes(long n) {
         doneBytes.addAndGet(n);
+    }
+
+    void addNetworkBytes(long n) {
+        networkBytes.addAndGet(n);
+    }
+
+    /** Vrai si l'étape en cours télécharge réellement quelque chose (et ne fait pas que vérifier). */
+    public boolean isDownloading() {
+        return networkBytes.get() > 0;
     }
 
     void addUnknownSize(long n) {

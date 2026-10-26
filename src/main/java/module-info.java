@@ -9,4 +9,5 @@ module fr.launcher {
     opens fr.launcher.core.auth to com.google.gson;
     opens fr.launcher.core.settings to com.google.gson;
     opens fr.launcher.core.modpack to com.google.gson;
+    opens fr.launcher.core.news to com.google.gson;
 }

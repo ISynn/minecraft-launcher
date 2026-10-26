@@ -1,0 +1,353 @@
+/* Accueil : logo, bouton Jouer, profil, statut du serveur, carrousel, bandeau d'état. */
+
+.home {
+    -fx-padding: 6 24 0 48;
+}
+
+.home-bottom {
+    -fx-padding: 0 0 24 0;
+}
+
+.home-tagline {
+    -fx-font-size: 16px;
+    -fx-font-weight: 500;
+    -fx-text-fill: rgba(255, 255, 255, 0.88);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.85), 8, 0.4, 0, 1);
+}
+
+/* Logo typographique de secours : blanc puis jaune, très gras, ombre sombre comme le contour de l'original */
+.wordmark {
+    -fx-font-weight: 900;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.85), 10, 0.55, 0, 3);
+}
+
+.wordmark-top {
+    -fx-text-fill: white;
+}
+
+.wordmark-bottom {
+    -fx-text-fill: linear-gradient(to bottom, -pi-yellow-light, -pi-yellow 50%, -pi-yellow-deep);
+}
+
+/* ---------- Bouton Jouer ---------- */
+
+.play {
+    -fx-min-width: 280;
+    -fx-pref-width: 280;
+    -fx-min-height: 96;
+    -fx-pref-height: 96;
+}
+
+.play-base {
+    -fx-background-color:
+        linear-gradient(to bottom, #fff3a8, -pi-yellow-light 18%, -pi-yellow 55%, -pi-yellow-deep),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.55), transparent 45%);
+    -fx-background-insets: 0, 2 2 50% 2;
+    -fx-background-radius: 22, 20;
+    -fx-effect: dropshadow(gaussian, rgba(255, 196, 0, 0.45), 26, 0.12, 0, 6);
+    -fx-cursor: hand;
+}
+
+.play-base:hover {
+    -fx-background-color:
+        linear-gradient(to bottom, #fff8c9, #fff09a 18%, -pi-yellow-light 55%, -pi-yellow),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.6), transparent 45%);
+}
+
+.play-base:pressed {
+    -fx-translate-y: 2;
+    -fx-effect: dropshadow(gaussian, rgba(255, 196, 0, 0.3), 14, 0.1, 0, 2);
+}
+
+.play-base:focus-visible {
+    -fx-border-color: white;
+    -fx-border-width: 3;
+    -fx-border-radius: 22;
+}
+
+.play-title {
+    -fx-font-size: 46px;
+    -fx-font-weight: 900;
+    -fx-text-fill: -pi-yellow-ink;
+}
+
+.play-subtitle {
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+    -fx-text-fill: rgba(23, 19, 10, 0.75);
+    -fx-translate-y: -4;
+}
+
+/* Occupé : fond sombre, le jaune remplit le bouton au rythme de la progression */
+.play:busy .play-base {
+    -fx-opacity: 1;
+    -fx-background-color: #2a2516, linear-gradient(to bottom, rgba(255, 255, 255, 0.06), transparent 50%);
+    -fx-border-color: rgba(255, 210, 54, 0.35);
+    -fx-border-radius: 22;
+    -fx-effect: null;
+}
+
+.play-fill {
+    -fx-background-color: linear-gradient(to bottom, rgba(255, 232, 115, 0.92), rgba(249, 168, 0, 0.92));
+}
+
+.play:busy .play-title {
+    -fx-font-size: 24px;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 4, 0.35, 0, 1);
+}
+
+.play:busy .play-subtitle {
+    -fx-text-fill: rgba(255, 255, 255, 0.9);
+    -fx-translate-y: 0;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 4, 0.35, 0, 1);
+}
+
+/* Erreur : le jaune reste l'action principale (réessayer), souligné de rouge */
+.play:error .play-base {
+    -fx-border-color: -pi-danger;
+    -fx-border-width: 3;
+    -fx-border-radius: 22;
+}
+
+.play:error .play-title {
+    -fx-font-size: 34px;
+}
+
+/* ---------- Profil ---------- */
+
+.profile-chip {
+    -fx-min-height: 96;
+    -fx-pref-width: 214;
+    -fx-alignment: center-left;
+    -fx-padding: 0 16;
+    -fx-background-color: rgba(14, 16, 22, 0.88);
+    -fx-background-radius: 22;
+    -fx-border-color: rgba(255, 255, 255, 0.12);
+    -fx-border-radius: 22;
+    -fx-cursor: hand;
+}
+
+.profile-chip:hover {
+    -fx-border-color: -pi-yellow;
+}
+
+.profile-chip:focus-visible {
+    -fx-border-color: -pi-yellow;
+    -fx-border-width: 2;
+}
+
+.profile-name {
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+}
+
+.profile-state {
+    -fx-font-size: 12px;
+    -fx-text-fill: -pi-text-2;
+}
+
+.profile-dot {
+    -fx-min-width: 8;
+    -fx-min-height: 8;
+    -fx-max-width: 8;
+    -fx-max-height: 8;
+    -fx-background-radius: 999;
+    -fx-background-color: -pi-success;
+}
+
+.profile-dot:demo {
+    -fx-background-color: -pi-yellow;
+}
+
+.btn-icon-lg {
+    -fx-padding: 12;
+    -fx-background-radius: 999;
+}
+
+.btn-icon-lg .icon {
+    -fx-fill: white;
+}
+
+/* ---------- Statut du serveur ---------- */
+
+.server-pill {
+    -fx-background-color: rgba(10, 11, 15, 0.78);
+    -fx-background-radius: 999;
+    -fx-border-color: -pi-line;
+    -fx-border-radius: 999;
+    -fx-padding: 7 14;
+}
+
+.server-dot {
+    -fx-min-width: 9;
+    -fx-min-height: 9;
+    -fx-max-width: 9;
+    -fx-max-height: 9;
+    -fx-background-radius: 999;
+    -fx-background-color: -pi-danger;
+}
+
+.server-pill:online .server-dot {
+    -fx-background-color: -pi-success;
+}
+
+.server-text {
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+}
+
+.server-detail {
+    -fx-font-size: 12px;
+    -fx-text-fill: -pi-text-3;
+}
+
+/* ---------- Carrousel ---------- */
+
+.news-carousel {
+    -fx-min-width: 400;
+    -fx-pref-width: 400;
+    -fx-max-width: 400;
+    -fx-min-height: 228;
+    -fx-pref-height: 228;
+    -fx-max-height: 228;
+    -fx-background-color: -pi-surface;
+    -fx-background-radius: 18;
+}
+
+.carousel-frame {
+    -fx-border-color: -pi-line-strong;
+    -fx-border-radius: 18;
+}
+
+.news-carousel:focus-visible .carousel-frame {
+    -fx-border-color: -pi-yellow;
+    -fx-border-width: 2;
+}
+
+/* Visuel de secours quand l'article n'a pas de vignette, ou pendant son chargement */
+.cover-image {
+    -fx-background-color:
+        linear-gradient(to bottom right, #1d2a44, #0f1420),
+        radial-gradient(center 80% 20%, radius 60%, rgba(255, 210, 54, 0.25), transparent);
+}
+
+.carousel-shade {
+    -fx-background-color: linear-gradient(to bottom, rgba(0, 0, 0, 0.45) 0%, transparent 24%,
+        rgba(6, 7, 10, 0.72) 42%, rgba(6, 7, 10, 0.97) 70%, rgba(6, 7, 10, 0.98) 100%);
+}
+
+/* Badges posés sur une image : fond sombre opaque pour rester lisibles */
+.carousel-chip {
+    -fx-background-color: rgba(8, 9, 12, 0.88);
+}
+
+.carousel-chip.badge-demo {
+    -fx-background-color: rgba(8, 9, 12, 0.88);
+}
+
+.carousel-text {
+    -fx-padding: 0 18 44 18;
+}
+
+.carousel-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+    -fx-text-fill: white;
+}
+
+.carousel-summary {
+    -fx-font-size: 12px;
+    -fx-text-fill: rgba(255, 255, 255, 0.8);
+    -fx-max-height: 34;
+}
+
+.carousel-date {
+    -fx-font-size: 12px;
+    -fx-font-weight: 500;
+    -fx-text-fill: rgba(255, 255, 255, 0.9);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.9), 4, 0.5, 0, 1);
+}
+
+.carousel-source {
+    -fx-padding: 12 12 0 0;
+}
+
+.carousel-controls {
+    -fx-padding: 0 8 6 0;
+}
+
+.carousel-arrow {
+    -fx-padding: 4;
+}
+
+.carousel-arrow .icon {
+    -fx-fill: white;
+}
+
+.carousel-dot {
+    -fx-min-width: 6;
+    -fx-min-height: 6;
+    -fx-max-width: 6;
+    -fx-max-height: 6;
+    -fx-background-radius: 999;
+    -fx-background-color: rgba(255, 255, 255, 0.45);
+}
+
+.carousel-dot:active {
+    -fx-min-width: 18;
+    -fx-max-width: 18;
+    -fx-background-color: -pi-yellow;
+}
+
+.carousel-placeholder {
+    -fx-padding: 20;
+}
+
+/* ---------- Bandeau d'état ---------- */
+
+.status-strip {
+    -fx-min-height: 82; /* hauteur fixe : pas de saut de mise en page quand la barre apparaît */
+    -fx-background-color: rgba(10, 11, 15, 0.74);
+    -fx-background-radius: 14;
+    -fx-border-color: -pi-line;
+    -fx-border-radius: 14;
+    -fx-padding: 10 16;
+}
+
+.status-strip:error {
+    -fx-background-color: rgba(60, 14, 16, 0.88);
+    -fx-border-color: rgba(239, 68, 68, 0.5);
+}
+
+.strip-headline {
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+}
+
+.strip-percent {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -pi-yellow;
+}
+
+.strip-detail {
+    -fx-font-size: 12px;
+    -fx-text-fill: -pi-text-2;
+}
+
+.strip-action {
+    -fx-padding: 2 8;
+    -fx-font-size: 13px;
+}
+
+/* Barre de progression lissée */
+.smooth-progress {
+    -fx-background-color: rgba(255, 255, 255, 0.10);
+    -fx-background-radius: 999;
+}
+
+.smooth-progress .fill {
+    -fx-background-color: linear-gradient(to right, -pi-yellow-deep, -pi-yellow, -pi-yellow-light);
+    -fx-background-radius: 999;
+}

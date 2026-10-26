@@ -20,7 +20,7 @@ public final class Theme {
     private static final Logger LOG = Log.get(Theme.class);
     private static final String ASSETS = "/fr/launcher/assets/";
     private static final String[] WEIGHTS = {"Regular", "Medium", "SemiBold", "Bold", "ExtraBold", "Black"};
-    private static final String[] STYLESHEETS = {"theme.css", "shell.css", "screens.css"};
+    private static final String[] STYLESHEETS = {"theme.css", "shell.css", "screens.css", "home.css"};
 
     private Theme() {
     }

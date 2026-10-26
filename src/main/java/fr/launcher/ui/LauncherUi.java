@@ -45,8 +45,10 @@ public final class LauncherUi {
         LOG.info(LauncherConfig.WINDOW_TITLE + " " + LauncherConfig.VERSION + " · Java " + Runtime.version()
                 + " · " + System.getProperty("os.name") + " · dossier " + core.gameDir);
 
+        long coreReady = System.nanoTime();
         try {
             Theme.loadFonts();
+            long fontsReady = System.nanoTime();
             AppContext app = new AppContext(core, stage, host);
             AppShell shell = new AppShell(app);
             app.attach(shell);
@@ -68,11 +70,19 @@ public final class LauncherUi {
                 shell.showMain();
                 refreshInBackground(app, saved);
             }
+            long screensReady = System.nanoTime();
             shell.show();
-            LOG.info(String.format("Fenêtre affichée en %d ms", (System.nanoTime() - started) / 1_000_000));
+            long shown = System.nanoTime();
+            LOG.info(String.format("Fenêtre affichée en %d ms (services %d, polices %d, écrans %d, affichage %d)",
+                    ms(shown - started), ms(coreReady - started), ms(fontsReady - coreReady),
+                    ms(screensReady - fontsReady), ms(shown - screensReady)));
         } catch (RuntimeException e) {
             fatal(e);
         }
+    }
+
+    private static long ms(long nanos) {
+        return nanos / 1_000_000;
     }
 
     /** Toute exception non rattrapée est consignée ; sur le thread graphique, l'utilisateur en est informé. */

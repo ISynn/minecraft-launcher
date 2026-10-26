@@ -65,6 +65,14 @@ public final class Http {
         return JsonParser.parseString(response.body());
     }
 
+    /** Page texte (HTML…), avec un délai court : une page lente ne doit pas faire attendre l'interface. */
+    public static String getText(String url) throws IOException, InterruptedException {
+        HttpRequest request = request(url).timeout(Duration.ofSeconds(10)).GET().build();
+        HttpResponse<String> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() / 100 != 2) throw new HttpException(response.statusCode(), "", request.uri());
+        return response.body();
+    }
+
     public static JsonElement get(String url) throws IOException, InterruptedException {
         return send(request(url).GET().build());
     }

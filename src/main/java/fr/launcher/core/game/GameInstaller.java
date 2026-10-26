@@ -11,14 +11,19 @@ import fr.launcher.core.modpack.ModpackSync;
 import fr.launcher.util.Json;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
-/** Installe ou met à jour tout ce qu'il faut pour jouer, en 5 étapes. */
+/**
+ * Installe ou met à jour tout ce qu'il faut pour jouer, en 5 étapes.
+ * Leurs noms sont neutres : c'est l'interface qui dit si l'étape vérifie ou télécharge.
+ */
 public final class GameInstaller {
 
     private static final String RESOURCES = "https://resources.download.minecraft.net/";
@@ -41,7 +46,7 @@ public final class GameInstaller {
 
     /** @param deepVerify recalcule le SHA-1 de chaque fichier (bouton « Vérifier les fichiers »). */
     public Installation install(Progress progress, boolean deepVerify) throws IOException, InterruptedException {
-        progress.stage(1, STAGES, "Recherche des mises à jour");
+        progress.stage(1, STAGES, "Versions et modpack");
         Optional<ModpackManifest> manifest = modpack.fetch();
         String mcVersion = manifest.map(ModpackManifest::minecraft).filter(s -> !s.isBlank())
                 .orElse(LauncherConfig.MINECRAFT_VERSION);
@@ -49,10 +54,10 @@ public final class GameInstaller {
                 .orElse(LauncherConfig.FABRIC_LOADER);
         GameProfile profile = resolver.resolve(mcVersion, loader, progress);
 
-        progress.stage(2, STAGES, "Installation de Java");
+        progress.stage(2, STAGES, "Java");
         Path java = runtime.install(profile.vanilla(), progress);
 
-        progress.stage(3, STAGES, "Téléchargement de Minecraft");
+        progress.stage(3, STAGES, "Minecraft et bibliothèques");
         List<DownloadTask> game = new ArrayList<>();
         JsonObject client = profile.vanilla().getAsJsonObject("downloads").getAsJsonObject("client");
         game.add(new DownloadTask(client.get("url").getAsString(), clientJar(profile),
@@ -60,10 +65,10 @@ public final class GameInstaller {
         profile.libraries().forEach(lib -> game.add(lib.task()));
         Downloader.downloadAll(progress.step(), game, progress);
 
-        progress.stage(4, STAGES, "Téléchargement des ressources");
+        progress.stage(4, STAGES, "Ressources du jeu");
         Downloader.downloadAll(progress.step(), assetTasks(profile.vanilla(), progress, deepVerify), progress);
 
-        progress.stage(5, STAGES, "Synchronisation des mods");
+        progress.stage(5, STAGES, "Mods du serveur");
         if (manifest.isPresent()) modpack.sync(manifest.get(), progress);
 
         return new Installation(profile, java);
@@ -87,6 +92,20 @@ public final class GameInstaller {
                     assets.resolve("objects").resolve(sub), h, object.get("size").getAsLong(), strict));
         }
         return new ArrayList<>(tasks.values());
+    }
+
+    /**
+     * Vrai si un Minecraft a déjà été installé ici (au moins une fiche de version), même incomplet :
+     * un téléchargement est alors une mise à jour ou une réparation, pas une première installation.
+     */
+    public boolean hasInstallation() {
+        Path versions = gameDir.resolve("versions");
+        if (!Files.isDirectory(versions)) return false;
+        try (Stream<Path> dirs = Files.list(versions)) {
+            return dirs.anyMatch(dir -> Files.isRegularFile(dir.resolve(dir.getFileName() + ".json")));
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     Path clientJar(GameProfile profile) {

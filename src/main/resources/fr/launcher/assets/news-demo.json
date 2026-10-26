@@ -1,0 +1,22 @@
+[
+  {
+    "title": "Exemple — Bienvenue sur le prototype du launcher",
+    "category": "Démo",
+    "author": "Prototype",
+    "date": "",
+    "summary": "Article fictif affiché uniquement lorsque le blog est injoignable et qu'aucune copie locale n'existe.",
+    "url": "https://pokeisland.fr/blog/",
+    "imageUrl": "",
+    "recent": false
+  },
+  {
+    "title": "Exemple — Les actualités se mettent à jour toutes seules",
+    "category": "Démo",
+    "author": "Prototype",
+    "date": "",
+    "summary": "En ligne, le launcher lit le blog public de PokeIsland. Hors ligne, il réaffiche la dernière copie enregistrée.",
+    "url": "https://pokeisland.fr/blog/",
+    "imageUrl": "",
+    "recent": false
+  }
+]

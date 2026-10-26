@@ -93,13 +93,18 @@ public final class GameLauncher {
         command.addAll(expand(profile.gameArgs(), features, vars));
 
         // La sortie du jeu va dans un fichier : si personne ne la lisait, le tampon se remplirait et bloquerait le jeu.
-        Path output = gameDir.resolve("logs").resolve("game-output.log");
+        Path output = outputLog();
         Files.createDirectories(output.getParent());
         return new ProcessBuilder(command)
                 .directory(gameDir.toFile())
                 .redirectErrorStream(true)
                 .redirectOutput(output.toFile())
                 .start();
+    }
+
+    /** Fichier qui reçoit la sortie du jeu en cours (console Minecraft). */
+    public Path outputLog() {
+        return installer.gameDir().resolve("logs").resolve("game-output.log");
     }
 
     /**

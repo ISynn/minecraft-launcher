@@ -60,6 +60,8 @@ public final class Icons {
             + "-2-2-2zm0 14H4V8h16v10zm-2-1h-6v-2h6v2zM7.5 17l-1.41-1.41L8.67 13l-2.59-2.59L7.5 9l4 4-4 4z";
     public static final String PLAY = "M8 5.14v13.72c0 .79.87 1.27 1.54.84l10.78-6.86a1 1 0 0 0 0-1.69L9.54 4.3C8.87"
             + " 3.87 8 4.35 8 5.14z";
+    public static final String CHEVRON_LEFT = "M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z";
+    public static final String CHEVRON_RIGHT = "M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z";
     public static final String CLOSE = "M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41"
             + " 17.59 19 19 17.59 13.41 12z";
     public static final String MINIMIZE = "M5 11h14v2H5z";

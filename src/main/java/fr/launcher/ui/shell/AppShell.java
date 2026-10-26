@@ -98,6 +98,13 @@ public final class AppShell {
         stage.setTitle(LauncherConfig.WINDOW_TITLE);
         stage.setResizable(false);
         stage.setScene(scene);
+        // Fenêtre cachée pendant la partie : sans cela, JavaFX considérerait l'application terminée et la fermerait,
+        // et le launcher ne reviendrait jamais après le jeu. La fermeture passe donc toujours par close().
+        Platform.setImplicitExit(false);
+        stage.setOnCloseRequest(e -> {
+            e.consume();
+            close();
+        });
     }
 
     public void register(ScreenId id, Supplier<Screen> factory) {

@@ -1,103 +1,171 @@
 package fr.launcher.ui.screens.home;
 
+import fr.launcher.LauncherConfig;
+import fr.launcher.core.download.Progress;
 import fr.launcher.ui.AppContext;
 import fr.launcher.ui.Fx;
 import fr.launcher.ui.Icons;
 import fr.launcher.ui.PlayController;
-import fr.launcher.ui.components.Avatar;
-import fr.launcher.ui.components.EmptyState;
+import fr.launcher.ui.PlayController.Phase;
+import fr.launcher.ui.components.NewsCarousel;
+import fr.launcher.ui.components.PlayButton;
 import fr.launcher.ui.components.Ui;
 import fr.launcher.ui.components.Wordmark;
 import fr.launcher.ui.shell.Screen;
 import fr.launcher.ui.shell.ScreenId;
+import javafx.animation.AnimationTimer;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
+import java.util.Locale;
+
 /**
- * Accueil — ossature de l'étape 2 : logo, bouton Jouer relié au vrai lancement, profil, emplacement du carrousel.
- * La composition définitive est l'objet de l'étape 3.
+ * Accueil : illustration, logo, bouton Jouer (phases réelles), profil, statut du serveur,
+ * carrousel d'actualités et bandeau d'état de l'installation.
  */
 public final class HomeScreen implements Screen {
 
+    private static final String TAGLINE = "Ton aventure Pokémon sur Minecraft";
+
     private final AppContext app;
+    private final PlayController play;
     private final BorderPane root = new BorderPane();
-    private final Button play = new Button("JOUER");
-    private final Label status = new Label();
+    private final PlayButton playButton;
+    private final StatusStrip strip;
+    private final NewsCarousel news;
+    private final ServerStatusPill server = new ServerStatusPill();
+    private boolean shown;
+    private boolean newsRequested;
+
+    /** Actif seulement pendant une installation : met à jour bouton et bandeau à partir de la progression. */
+    private final AnimationTimer installTicker = new AnimationTimer() {
+        private long lastText;
+        private long lastSample;
+        private long lastBytes;
+        private double speed;
+
+        @Override
+        public void handle(long now) {
+            Progress p = play.progress();
+            Phase phase = play.phaseProperty().get();
+            boolean transferring = phase == Phase.DOWNLOADING || phase == Phase.UPDATING;
+            playButton.setProgress(transferring ? Math.max(0, p.fraction()) : -1);
+            // Le texte ne change que 8 fois par seconde : inutile de relancer la mise en page à chaque image.
+            if (now - lastText < 125_000_000) return;
+            lastText = now;
+            if (now - lastSample > 500_000_000) {
+                long bytes = p.doneBytes();
+                double instant = lastSample == 0 ? 0 : Math.max(0, bytes - lastBytes) / ((now - lastSample) / 1e9);
+                speed = speed == 0 ? instant : speed * 0.6 + instant * 0.4;
+                lastBytes = bytes;
+                lastSample = now;
+            }
+            strip.update(phase, p, transferring ? speed : 0);
+            playButton.show(phase, buttonDetail(phase, p));
+        }
+
+        @Override
+        public void start() {
+            lastText = lastSample = lastBytes = 0;
+            speed = 0;
+            super.start();
+        }
+    };
 
     public HomeScreen(AppContext app) {
         this.app = app;
+        this.play = app.play;
         root.getStyleClass().add("home");
 
-        VBox brand = new VBox(18, Wordmark.create(app.branding.image("logo"), 150), actions(), status);
-        brand.setAlignment(Pos.BOTTOM_LEFT);
-        status.getStyleClass().add("home-status");
+        playButton = new PlayButton(play::play);
+        strip = new StatusStrip(() -> app.openFolder(app.core.logsDir));
+        news = new NewsCarousel(app::open);
 
-        Node news = newsSlot();
-        HBox bottom = new HBox(brand, Fx.spacer(), news);
-        bottom.setAlignment(Pos.BOTTOM_LEFT);
+        BorderPane.setAlignment(server, Pos.TOP_LEFT);
+        root.setTop(server);
+
+        HBox bottomRow = new HBox(24, brandBlock(), Fx.spacer(), news);
+        bottomRow.setAlignment(Pos.BOTTOM_LEFT);
+        VBox bottom = new VBox(18, bottomRow, strip);
         bottom.getStyleClass().add("home-bottom");
         root.setBottom(bottom);
 
-        app.play.stateProperty().addListener((o, old, state) -> onState(state));
-        onState(app.play.stateProperty().get());
+        play.phaseProperty().addListener((o, old, phase) -> onPhase(phase));
+        play.versionLabelProperty().addListener((o, a, b) -> onPhase(play.phaseProperty().get()));
+        onPhase(play.phaseProperty().get());
+        // Pendant la partie la fenêtre est cachée : rien ne doit tourner pour rien.
+        app.stage.showingProperty().addListener((o, a, showing) -> updateActivity());
     }
 
-    private Node actions() {
-        play.getStyleClass().addAll("btn", "btn-play");
-        play.setMnemonicParsing(false);
-        play.setOnAction(e -> app.play.play());
+    private Node brandBlock() {
+        Label tagline = new Label(TAGLINE);
+        tagline.getStyleClass().add("home-tagline");
 
-        Avatar avatar = new Avatar(64, 10);
-        app.account.addListener((o, old, account) -> avatar.setAccount(account));
-        avatar.setAccount(app.account.get());
-        StackPane profile = new StackPane(avatar);
-        profile.getStyleClass().add("profile-tile");
-        Button profileButton = new Button();
-        profileButton.setGraphic(profile);
-        profileButton.getStyleClass().add("tile-button");
-        profileButton.setAccessibleText("Mon compte");
-        profileButton.setTooltip(Ui.tooltip("Mon compte"));
-        profileButton.setOnAction(e -> app.shell().navigate(ScreenId.ACCOUNT));
-
+        ProfileChip profile = new ProfileChip(app.account, () -> app.shell().navigate(ScreenId.ACCOUNT));
         Button settings = Ui.icon(Icons.SETTINGS, "Paramètres");
         settings.getStyleClass().add("btn-icon-lg");
-        settings.setGraphic(Fx.icon(Icons.SETTINGS, 30));
+        settings.setGraphic(Fx.icon(Icons.SETTINGS, 28));
         settings.setOnAction(e -> app.shell().navigate(ScreenId.SETTINGS));
 
-        HBox row = new HBox(18, play, profileButton, settings);
-        row.setAlignment(Pos.CENTER_LEFT);
-        return row;
+        HBox actions = new HBox(14, playButton, profile, settings);
+        actions.setAlignment(Pos.CENTER_LEFT);
+
+        VBox block = new VBox(8, Wordmark.create(app.branding.image("logo"), 132), tagline, actions);
+        block.getStyleClass().add("home-brand");
+        block.setAlignment(Pos.BOTTOM_LEFT);
+        VBox.setMargin(actions, new Insets(18, 0, 0, 0));
+        return block;
     }
 
-    /** Emplacement réservé au carrousel d'actualités (étape 3). */
-    private Node newsSlot() {
-        EmptyState placeholder = new EmptyState(Icons.NEWS, "Carrousel d'actualités",
-                "Emplacement prévu pour l'étape 3.");
-        Label badge = Ui.badge("ÉTAPE 3", Ui.Tone.ACCENT);
-        StackPane.setAlignment(badge, Pos.TOP_LEFT);
-        StackPane slot = new StackPane(placeholder, badge);
-        slot.getStyleClass().addAll("card", "news-slot");
-        return slot;
+    private void onPhase(Phase phase) {
+        String version = play.versionLabelProperty().get().isEmpty()
+                ? "Minecraft " + LauncherConfig.MINECRAFT_VERSION + " · Fabric"
+                : play.versionLabelProperty().get();
+        strip.show(phase, version, play.errorProperty().get());
+        playButton.show(phase, buttonDetail(phase, play.progress()));
+        boolean installing = phase == Phase.PREPARING || phase == Phase.DOWNLOADING || phase == Phase.UPDATING;
+        if (installing) installTicker.start();
+        else installTicker.stop();
     }
 
-    private void onState(PlayController.State state) {
-        play.setDisable(state != PlayController.State.IDLE);
-        play.setText(switch (state) {
-            case IDLE -> "JOUER";
-            case INSTALLING -> "PRÉPARATION…";
-            case RUNNING -> "EN JEU";
-        });
-        status.setText(switch (state) {
-            case IDLE -> "Prêt à jouer";
-            case INSTALLING -> "Vérification et téléchargement des fichiers…";
-            case RUNNING -> "Minecraft est lancé";
-        });
+    private static String buttonDetail(Phase phase, Progress p) {
+        return switch (phase) {
+            case PREPARING -> p.stageIndex() <= 1 ? "Recherche des mises à jour" : "Vérification des fichiers";
+            case DOWNLOADING, UPDATING -> p.fraction() < 0 ? "" : String.format(Locale.FRANCE, "%d %%",
+                    Math.round(p.fraction() * 100));
+            case LAUNCHING -> "Chargement du jeu…";
+            case ERROR -> "Voir le détail ci-dessous";
+            default -> "";
+        };
+    }
+
+    @Override
+    public void onShow() {
+        shown = true;
+        if (!newsRequested) {
+            newsRequested = true;
+            Fx.async(app.core.news::load, feed -> news.setFeed(feed, "Blog PokeIsland"),
+                    error -> app.error("Actualités indisponibles", error));
+        }
+        updateActivity();
+    }
+
+    @Override
+    public void onHide() {
+        shown = false;
+        updateActivity();
+    }
+
+    private void updateActivity() {
+        boolean active = shown && app.stage.isShowing();
+        server.setPolling(active);
+        news.setRunning(active);
     }
 
     @Override
