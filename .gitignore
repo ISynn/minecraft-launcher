@@ -5,3 +5,6 @@ target/
 *.iml
 .vscode/
 out/
+
+# Visuels de marque PokeIsland (droits réservés) : jamais versionnés
+branding/

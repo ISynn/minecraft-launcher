@@ -136,7 +136,7 @@ public final class GameLauncher {
         return out;
     }
 
-    private static String substitute(String arg, Map<String, String> vars) {
+    static String substitute(String arg, Map<String, String> vars) {
         Matcher m = PLACEHOLDER.matcher(arg);
         StringBuilder sb = new StringBuilder();
         while (m.find()) {

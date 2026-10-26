@@ -3,6 +3,7 @@ package fr.launcher.ui;
 import fr.launcher.LauncherConfig;
 import fr.launcher.core.auth.Account;
 import fr.launcher.core.download.Progress;
+import fr.launcher.core.log.Log;
 import fr.launcher.core.game.GameInstaller;
 import fr.launcher.ui.components.Toasts;
 import javafx.application.Platform;
@@ -11,8 +12,12 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 
+import java.util.logging.Logger;
+
 /** Orchestration du bouton « Jouer » : installation, lancement, suivi du processus du jeu. */
 public final class PlayController {
+
+    private static final Logger LOG = Log.get(PlayController.class);
 
     public enum State { IDLE, INSTALLING, RUNNING }
 
@@ -38,6 +43,7 @@ public final class PlayController {
     private void run(boolean launch, boolean deepVerify) {
         if (state.get() != State.IDLE) return;
         state.set(State.INSTALLING);
+        LOG.info(launch ? "Jouer : préparation de l'installation" : "Vérification approfondie des fichiers");
 
         Fx.async(() -> {
             Account account = app.freshAccount();
@@ -60,10 +66,11 @@ public final class PlayController {
 
     private void onStarted(Process process) {
         state.set(State.RUNNING);
+        LOG.info("Minecraft démarré, pid " + process.pid());
         process.onExit().thenAccept(p -> Platform.runLater(() -> onExit(p.exitValue())));
 
         if (app.core.settings.hideWhilePlaying) {
-            app.window().hideForGame();
+            app.shell().hideForGame();
         } else {
             app.toast(Toasts.Kind.SUCCESS, "Bon jeu !", "Minecraft est en cours de démarrage.");
         }
@@ -71,7 +78,8 @@ public final class PlayController {
 
     private void onExit(int code) {
         state.set(State.IDLE);
-        app.window().restoreAfterGame();
+        LOG.info("Minecraft fermé, code " + code);
+        app.shell().restoreAfterGame();
         if (code != 0) {
             app.toast(Toasts.Kind.ERROR, "Le jeu a planté",
                     "Code " + code + ". Les détails sont dans le dossier logs du jeu.");

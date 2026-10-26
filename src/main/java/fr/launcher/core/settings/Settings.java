@@ -1,20 +1,24 @@
 package fr.launcher.core.settings;
 
+import fr.launcher.core.log.Log;
 import fr.launcher.util.Json;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /** Préférences de l'utilisateur, sauvegardées dans settings.json. */
 public final class Settings {
+
+    private static final Logger LOG = Log.get(Settings.class);
 
     public int ramMb = 4096;
     public String jvmArgs = "";
     public boolean hideWhilePlaying = true;
     public boolean autoConnect = true;
-    public boolean animatedBackground = true;
 
     private transient Path file;
 
@@ -23,6 +27,8 @@ public final class Settings {
         try {
             settings = Files.isRegularFile(file) ? Json.read(file, Settings.class) : new Settings();
         } catch (IOException | RuntimeException e) {
+            LOG.log(Level.WARNING, "Préférences illisibles, valeurs par défaut utilisées", e);
+            Json.quarantine(file);
             settings = new Settings();
         }
         if (settings == null) settings = new Settings();
@@ -46,7 +52,7 @@ public final class Settings {
         try {
             Json.write(file, this);
         } catch (IOException e) {
-            System.err.println("Impossible de sauvegarder les paramètres : " + e.getMessage());
+            LOG.log(Level.WARNING, "Impossible de sauvegarder les paramètres", e);
         }
     }
 }

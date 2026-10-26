@@ -1,6 +1,7 @@
 module fr.launcher {
     requires javafx.controls;
     requires java.net.http;
+    requires java.logging;
     requires jdk.management;
     requires com.google.gson;
 

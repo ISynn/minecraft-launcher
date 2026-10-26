@@ -53,7 +53,7 @@ public final class ModpackSync {
     }
 
     /** Le manifest vient d'Internet : on refuse tout chemin qui sortirait du dossier du jeu. */
-    private Path safeResolve(String relative) throws IOException {
+    Path safeResolve(String relative) throws IOException {
         Path path = gameDir.resolve(relative).normalize();
         if (!path.startsWith(gameDir) || path.equals(gameDir)) {
             throw new IOException("Chemin interdit dans le modpack : " + relative);

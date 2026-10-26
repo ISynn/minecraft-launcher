@@ -35,6 +35,20 @@ public final class Json {
         Files.move(tmp, file, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
     }
 
+    /**
+     * Met de côté un fichier illisible ({@code nom.corrupt}) au lieu de l'écraser,
+     * pour pouvoir comprendre ou récupérer son contenu plus tard.
+     */
+    public static void quarantine(Path file) {
+        try {
+            if (Files.isRegularFile(file)) {
+                Files.move(file, file.resolveSibling(file.getFileName() + ".corrupt"), StandardCopyOption.REPLACE_EXISTING);
+            }
+        } catch (IOException ignored) {
+            // au pire le fichier sera écrasé à la prochaine sauvegarde
+        }
+    }
+
     public static String string(JsonObject o, String key, String fallback) {
         JsonElement e = o.get(key);
         return e != null && e.isJsonPrimitive() ? e.getAsString() : fallback;

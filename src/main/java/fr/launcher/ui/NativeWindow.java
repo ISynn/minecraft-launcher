@@ -20,10 +20,10 @@ import static java.lang.foreign.ValueLayout.JAVA_INT;
  * <p>Pourquoi : une fenêtre JavaFX transparente est recomposée par le processeur à chaque image (~3× plus de CPU).
  * Avec une fenêtre opaque, c'est Windows (DWM) qui dessine les coins et l'ombre, gratuitement, sur le GPU.</p>
  */
-final class NativeWindow {
+public final class NativeWindow {
 
     /** Windows 11 uniquement : les coins arrondis DWM n'existent pas sur Windows 10. */
-    static final boolean SUPPORTED = "Windows 11".equals(System.getProperty("os.name"));
+    public static final boolean SUPPORTED = "Windows 11".equals(System.getProperty("os.name"));
 
     private static final int DWMWA_WINDOW_CORNER_PREFERENCE = 33;
     private static final int DWMWA_BORDER_COLOR = 34;
@@ -35,7 +35,9 @@ final class NativeWindow {
     }
 
     /** À appeler une fois la fenêtre affichée. Renvoie false si Windows a refusé (la fenêtre reste carrée). */
-    static boolean decorate(Stage stage) {
+    // Appels natifs volontaires, autorisés au lancement par --enable-native-access=fr.launcher.
+    @SuppressWarnings("restricted")
+    public static boolean decorate(Stage stage) {
         if (!SUPPORTED) return false;
         String title = stage.getTitle();
         // On retrouve la fenêtre native grâce à un titre unique temporaire.

@@ -4,6 +4,7 @@ import fr.launcher.core.auth.AccountStore;
 import fr.launcher.core.auth.MicrosoftAuth;
 import fr.launcher.core.game.GameInstaller;
 import fr.launcher.core.game.GameLauncher;
+import fr.launcher.core.log.Log;
 import fr.launcher.core.settings.Settings;
 import fr.launcher.util.Os;
 
@@ -13,9 +14,19 @@ import java.nio.file.Path;
 public final class LauncherCore {
 
     public final Path gameDir = Os.gameDir();
-    public final Settings settings = Settings.load(gameDir.resolve("launcher/settings.json"));
-    public final AccountStore accounts = new AccountStore(gameDir.resolve("launcher/account.json"));
+    public final Path logsDir = gameDir.resolve("launcher").resolve("logs");
+    public final Settings settings;
+    public final AccountStore accounts;
     public final MicrosoftAuth auth = new MicrosoftAuth();
-    public final GameInstaller installer = new GameInstaller(gameDir);
-    public final GameLauncher launcher = new GameLauncher(installer);
+    public final GameInstaller installer;
+    public final GameLauncher launcher;
+
+    public LauncherCore() {
+        // Le journal d'abord : le chargement des réglages peut déjà avoir quelque chose à signaler.
+        Log.init(logsDir);
+        settings = Settings.load(gameDir.resolve("launcher/settings.json"));
+        accounts = new AccountStore(gameDir.resolve("launcher/account.json"));
+        installer = new GameInstaller(gameDir);
+        launcher = new GameLauncher(installer);
+    }
 }

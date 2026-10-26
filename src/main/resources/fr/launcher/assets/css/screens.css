@@ -1,0 +1,181 @@
+/* Mise en page des écrans. */
+
+/* ---------- Pages secondaires ---------- */
+
+.page {
+    -fx-padding: 22 24 26 44;
+}
+
+.page-title {
+    -fx-font-size: 30px;
+    -fx-font-weight: 700;
+}
+
+.page-subtitle {
+    -fx-text-fill: -pi-text-2;
+    -fx-font-size: 14px;
+}
+
+.big-value {
+    -fx-font-size: 22px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -pi-yellow;
+}
+
+.setting-name {
+    -fx-font-weight: 500;
+}
+
+.setting-row {
+    -fx-padding: 4 0;
+}
+
+/* ---------- Accueil ---------- */
+
+.home-bottom {
+    -fx-padding: 0 26 34 48;
+    -fx-spacing: 24;
+}
+
+.home-status {
+    -fx-text-fill: -pi-text-2;
+    -fx-font-size: 13px;
+}
+
+/* Le logo typographique : blanc puis jaune, très gras, avec un contour sombre comme sur l'original */
+.wordmark {
+    -fx-font-weight: 900;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.85), 10, 0.55, 0, 3);
+}
+
+.wordmark-top {
+    -fx-text-fill: white;
+}
+
+.wordmark-bottom {
+    -fx-text-fill: linear-gradient(to bottom, -pi-yellow-light, -pi-yellow 50%, -pi-yellow-deep);
+}
+
+/* Le bouton Jouer : grand, jaune, texte noir très gras, halo jaune discret */
+.btn-play {
+    -fx-min-width: 290;
+    -fx-min-height: 100;
+    -fx-font-size: 46px;
+    -fx-font-weight: 900;
+    -fx-text-fill: -pi-yellow-ink;
+    -fx-background-color:
+        linear-gradient(to bottom, #fff3a8, -pi-yellow-light 18%, -pi-yellow 55%, -pi-yellow-deep),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.55), transparent 45%);
+    -fx-background-insets: 0, 2 2 50% 2;
+    -fx-background-radius: 22, 20;
+    -fx-effect: dropshadow(gaussian, rgba(255, 196, 0, 0.42), 26, 0.12, 0, 6);
+}
+
+.btn-play:hover {
+    -fx-background-color:
+        linear-gradient(to bottom, #fff8c9, #fff09a 18%, -pi-yellow-light 55%, -pi-yellow),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.6), transparent 45%);
+}
+
+.btn-play:pressed {
+    -fx-translate-y: 2;
+    -fx-effect: dropshadow(gaussian, rgba(255, 196, 0, 0.30), 14, 0.1, 0, 2);
+}
+
+.btn-play:disabled {
+    -fx-opacity: 1;
+    -fx-font-size: 28px;
+    -fx-background-color: linear-gradient(to bottom, #6b6142, #4a4330);
+    -fx-text-fill: rgba(255, 255, 255, 0.8);
+    -fx-effect: null;
+}
+
+.tile-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-background-radius: 22;
+    -fx-border-radius: 22;
+    -fx-cursor: hand;
+}
+
+.profile-tile {
+    -fx-min-width: 100;
+    -fx-min-height: 100;
+    -fx-background-color: rgba(20, 22, 28, 0.92);
+    -fx-background-radius: 22;
+    -fx-border-color: rgba(255, 255, 255, 0.12);
+    -fx-border-radius: 22;
+}
+
+.tile-button:hover .profile-tile {
+    -fx-border-color: -pi-yellow;
+}
+
+.btn-icon-lg {
+    -fx-padding: 12;
+    -fx-background-radius: 999;
+}
+
+.btn-icon-lg .icon {
+    -fx-fill: white;
+}
+
+.news-slot {
+    -fx-pref-width: 430;
+    -fx-pref-height: 240;
+    -fx-min-width: 430;
+    -fx-max-height: 240;
+    -fx-padding: 14;
+}
+
+/* ---------- Mon compte ---------- */
+
+.account-name {
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+}
+
+/* ---------- Connexion ---------- */
+
+.login {
+    -fx-padding: 0 0 30 0;
+}
+
+.login-card {
+    -fx-padding: 30 34 30 34;
+    -fx-background-color: -pi-surface-strong;
+}
+
+.login-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+}
+
+.login-subtitle {
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+}
+
+.btn-microsoft {
+    -fx-background-color: white;
+    -fx-text-fill: #1b1b1b;
+    -fx-font-weight: 600;
+    -fx-padding: 12 18;
+}
+
+.btn-microsoft:hover {
+    -fx-background-color: #ececec;
+}
+
+.code-box {
+    -fx-background-color: rgba(0, 0, 0, 0.35);
+    -fx-background-radius: 12;
+    -fx-padding: 12 16;
+}
+
+.device-code {
+    -fx-font-family: "Consolas";
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -pi-yellow;
+}

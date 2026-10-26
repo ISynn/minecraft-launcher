@@ -1,0 +1,444 @@
+/*
+ * Thème PokeIsland (prototype) : variables de couleur et composants partagés.
+ *
+ * Palette : nuit / anthracite pour les fonds, jaune PokeIsland pour l'action principale,
+ * turquoise en accent secondaire. Toutes les couleurs sont définies ici, une seule fois.
+ */
+
+.root {
+    /* Fonds */
+    -pi-night: #0b0d12;
+    -pi-night-2: #12151d;
+    -pi-surface: rgba(14, 16, 22, 0.86);
+    -pi-surface-strong: rgba(10, 11, 15, 0.94);
+    -pi-surface-hover: rgba(255, 255, 255, 0.06);
+    -pi-line: rgba(255, 255, 255, 0.08);
+    -pi-line-strong: rgba(255, 255, 255, 0.16);
+
+    /* Action principale : le jaune du logo PokeIsland */
+    -pi-yellow: #ffd236;
+    -pi-yellow-light: #ffe873;
+    -pi-yellow-deep: #f9a800;
+    -pi-yellow-ink: #17130a;
+    -pi-yellow-soft: rgba(255, 210, 54, 0.14);
+
+    /* Accent secondaire */
+    -pi-teal: #2dd4bf;
+    -pi-teal-soft: rgba(45, 212, 191, 0.14);
+
+    /* Texte */
+    -pi-text: #ffffff;
+    -pi-text-2: #c4cad6;
+    -pi-text-3: #8a92a3;
+
+    /* États */
+    -pi-success: #22c55e;
+    -pi-success-soft: rgba(34, 197, 94, 0.15);
+    -pi-warning: #f59e0b;
+    -pi-warning-soft: rgba(245, 158, 11, 0.15);
+    -pi-danger: #ef4444;
+    -pi-danger-soft: rgba(239, 68, 68, 0.15);
+
+    -fx-font-family: "Kanit";
+    -fx-font-size: 14px;
+    -fx-text-fill: -pi-text;
+    -fx-base: #1a1d26;
+    -fx-accent: -pi-yellow;
+    -fx-focus-color: -pi-yellow;
+    -fx-faint-focus-color: transparent;
+    -fx-background-color: -pi-night;
+}
+
+.label {
+    -fx-text-fill: -pi-text;
+}
+
+.text-muted {
+    -fx-text-fill: -pi-text-2;
+    -fx-font-size: 13px;
+}
+
+.icon {
+    -fx-fill: -pi-text-2;
+}
+
+/* ---------- Boutons ---------- */
+
+.btn {
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+    -fx-padding: 10 18;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-graphic-text-gap: 10;
+    -fx-cursor: hand;
+}
+
+.btn:disabled {
+    -fx-opacity: 0.45;
+}
+
+.btn-primary {
+    -fx-background-color: linear-gradient(to bottom, -pi-yellow-light, -pi-yellow 55%, -pi-yellow-deep);
+    -fx-text-fill: -pi-yellow-ink;
+    -fx-font-weight: 600;
+}
+
+.btn-primary .icon {
+    -fx-fill: -pi-yellow-ink;
+}
+
+.btn-primary:hover {
+    -fx-background-color: linear-gradient(to bottom, #fff1a6, -pi-yellow-light 55%, -pi-yellow);
+}
+
+.btn-primary:pressed {
+    -fx-background-color: -pi-yellow-deep;
+}
+
+.btn-secondary {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-border-color: -pi-line;
+    -fx-text-fill: -pi-text;
+}
+
+.btn-secondary:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.13);
+    -fx-border-color: -pi-line-strong;
+}
+
+.btn-secondary:pressed {
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+}
+
+.btn-ghost {
+    -fx-background-color: transparent;
+    -fx-text-fill: -pi-text-2;
+    -fx-padding: 8 12;
+}
+
+.btn-ghost:hover {
+    -fx-background-color: -pi-surface-hover;
+    -fx-text-fill: -pi-text;
+}
+
+.btn-danger {
+    -fx-background-color: -pi-danger-soft;
+    -fx-border-color: rgba(239, 68, 68, 0.4);
+    -fx-text-fill: #fecaca;
+}
+
+.btn-danger .icon {
+    -fx-fill: #fecaca;
+}
+
+.btn-icon {
+    -fx-background-color: transparent;
+    -fx-padding: 8;
+    -fx-background-radius: 10;
+}
+
+.btn-icon:hover {
+    -fx-background-color: -pi-surface-hover;
+}
+
+.btn-icon:hover .icon,
+.btn-secondary:hover .icon,
+.btn-ghost:hover .icon {
+    -fx-fill: -pi-text;
+}
+
+/* Focus clavier uniquement (:focus-visible) : anneau jaune net, invisible après un clic souris */
+.btn:focus-visible,
+.nav-item:focus-visible,
+.tile-button:focus-visible,
+.switch:focus-visible,
+.field:focus-visible {
+    -fx-border-color: -pi-yellow;
+    -fx-border-width: 2;
+}
+
+/* ---------- Cartes, badges, champs ---------- */
+
+.card {
+    -fx-background-color: -pi-surface;
+    -fx-background-radius: 18;
+    -fx-border-color: -pi-line;
+    -fx-border-radius: 18;
+    -fx-padding: 22;
+}
+
+.card-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+}
+
+.card-head .icon {
+    -fx-fill: -pi-yellow;
+}
+
+.badge {
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-padding: 3 9;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+}
+
+.badge-neutral {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-text-fill: -pi-text-2;
+}
+
+.badge-accent {
+    -fx-background-color: -pi-teal-soft;
+    -fx-text-fill: -pi-teal;
+}
+
+.badge-success {
+    -fx-background-color: -pi-success-soft;
+    -fx-text-fill: #86efac;
+}
+
+.badge-warning {
+    -fx-background-color: -pi-warning-soft;
+    -fx-text-fill: #fcd34d;
+}
+
+.badge-danger {
+    -fx-background-color: -pi-danger-soft;
+    -fx-text-fill: #fca5a5;
+}
+
+.badge-demo {
+    -fx-background-color: rgba(255, 210, 54, 0.12);
+    -fx-border-color: rgba(255, 210, 54, 0.45);
+    -fx-text-fill: -pi-yellow;
+}
+
+.field {
+    -fx-background-color: rgba(0, 0, 0, 0.35);
+    -fx-border-color: -pi-line;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-text-fill: -pi-text;
+    -fx-prompt-text-fill: -pi-text-3;
+    -fx-highlight-fill: -pi-yellow;
+    -fx-highlight-text-fill: -pi-yellow-ink;
+    -fx-padding: 10 12;
+}
+
+.path-label {
+    -fx-font-family: "Consolas";
+    -fx-font-size: 12px;
+    -fx-text-fill: -pi-text-2;
+    -fx-background-color: rgba(0, 0, 0, 0.35);
+    -fx-background-radius: 8;
+    -fx-padding: 8 10;
+}
+
+.link {
+    -fx-text-fill: -pi-yellow;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.link:visited {
+    -fx-text-fill: -pi-yellow;
+}
+
+/* ---------- Interrupteur ---------- */
+
+.switch {
+    -fx-border-radius: 999;
+    -fx-background-radius: 999;
+}
+
+.switch .track {
+    -fx-pref-width: 44;
+    -fx-pref-height: 26;
+    -fx-background-color: rgba(255, 255, 255, 0.14);
+    -fx-background-radius: 999;
+}
+
+.switch .thumb {
+    -fx-pref-width: 20;
+    -fx-pref-height: 20;
+    -fx-background-color: #e5e7eb;
+    -fx-background-radius: 999;
+}
+
+.switch:selected .track {
+    -fx-background-color: -pi-yellow;
+}
+
+.switch:selected .thumb {
+    -fx-background-color: -pi-yellow-ink;
+}
+
+/* ---------- Curseur ---------- */
+
+/* Rayon modéré : le Slider de JavaFX allonge sa piste de la valeur du rayon. */
+.slider .track {
+    -fx-background-color: rgba(255, 255, 255, 0.12);
+    -fx-background-radius: 3;
+    -fx-padding: 3;
+}
+
+.slider .thumb {
+    -fx-background-color: -pi-yellow;
+    -fx-background-radius: 999;
+    -fx-padding: 9;
+}
+
+.slider:focus-visible .thumb {
+    -fx-border-color: white;
+    -fx-border-radius: 999;
+    -fx-border-width: 2;
+}
+
+/* ---------- États vides et erreurs ---------- */
+
+.empty-state {
+    -fx-padding: 36 24;
+}
+
+.empty-icon {
+    -fx-background-color: -pi-yellow-soft;
+    -fx-background-radius: 999;
+    -fx-min-width: 64;
+    -fx-min-height: 64;
+    -fx-max-width: 64;
+    -fx-max-height: 64;
+}
+
+.empty-icon .icon {
+    -fx-fill: -pi-yellow;
+}
+
+.empty-state-error .empty-icon {
+    -fx-background-color: -pi-danger-soft;
+}
+
+.empty-state-error .empty-icon .icon {
+    -fx-fill: -pi-danger;
+}
+
+.empty-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: 600;
+    -fx-padding: 6 0 0 0;
+}
+
+.empty-message {
+    -fx-text-fill: -pi-text-2;
+    -fx-text-alignment: center;
+}
+
+.empty-actions {
+    -fx-padding: 10 0 0 0;
+}
+
+/* ---------- Notifications ---------- */
+
+.toast {
+    -fx-background-color: -pi-surface-strong;
+    -fx-background-radius: 14;
+    -fx-border-color: -pi-line-strong;
+    -fx-border-radius: 14;
+    -fx-padding: 14 16;
+    -fx-cursor: hand;
+}
+
+.toast-dot {
+    -fx-min-width: 10;
+    -fx-min-height: 10;
+    -fx-max-width: 10;
+    -fx-max-height: 10;
+    -fx-background-radius: 999;
+    -fx-translate-y: 5;
+}
+
+.toast-dot.info {
+    -fx-background-color: -pi-teal;
+}
+
+.toast-dot.success {
+    -fx-background-color: -pi-success;
+}
+
+.toast-dot.error {
+    -fx-background-color: -pi-danger;
+}
+
+.toast-title {
+    -fx-font-weight: 600;
+}
+
+.toast-message {
+    -fx-text-fill: -pi-text-2;
+    -fx-font-size: 13px;
+}
+
+/* ---------- Divers ---------- */
+
+.tooltip {
+    -fx-background-color: -pi-surface-strong;
+    -fx-background-radius: 8;
+    -fx-text-fill: -pi-text;
+    -fx-font-family: "Kanit";
+    -fx-font-size: 12px;
+    -fx-padding: 6 10;
+}
+
+.avatar {
+    -fx-background-color: rgba(255, 255, 255, 0.06);
+    -fx-background-radius: 10;
+}
+
+.spinner .segment {
+    -fx-background-color: -pi-yellow;
+}
+
+.divider {
+    -fx-min-height: 1;
+    -fx-max-height: 1;
+    -fx-background-color: -pi-line;
+}
+
+.separator-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-text-fill: -pi-text-3;
+}
+
+.scroll-pane,
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8;
+    -fx-padding: 4 0;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: rgba(255, 255, 255, 0.18);
+    -fx-background-radius: 999;
+    -fx-background-insets: 2;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-padding: 0;
+    -fx-pref-height: 0;
+}
+
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0;
+}
