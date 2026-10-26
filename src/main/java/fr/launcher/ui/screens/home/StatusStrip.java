@@ -28,8 +28,9 @@ final class StatusStrip extends VBox {
     private final Label detail = new Label();
     private final SmoothProgressBar bar = new SmoothProgressBar();
     private final Button logs;
+    private final Button cancel;
 
-    StatusStrip(Runnable openLogs) {
+    StatusStrip(Runnable openLogs, Runnable onCancel) {
         super(6);
         getStyleClass().add("status-strip");
         headline.getStyleClass().add("strip-headline");
@@ -39,8 +40,14 @@ final class StatusStrip extends VBox {
         logs.getStyleClass().add("strip-action");
         logs.setOnAction(e -> openLogs.run());
         logs.managedProperty().bind(logs.visibleProperty());
+        cancel = Ui.ghost("Annuler", Icons.CLOSE);
+        cancel.getStyleClass().add("strip-action");
+        cancel.setOnAction(e -> onCancel.run());
+        cancel.setTooltip(Ui.tooltip("Arrête l'installation : les fichiers déjà vérifiés sont conservés."));
+        cancel.managedProperty().bind(cancel.visibleProperty());
+        cancel.setVisible(false);
 
-        HBox top = new HBox(10, headline, Fx.spacer(), percent, logs);
+        HBox top = new HBox(10, headline, Fx.spacer(), percent, cancel, logs);
         top.setAlignment(Pos.CENTER_LEFT);
         // Hauteur fixe (CSS) et contenu centré : le bandeau ne change pas de taille d'un état à l'autre.
         setAlignment(Pos.CENTER_LEFT);
@@ -50,14 +57,17 @@ final class StatusStrip extends VBox {
     }
 
     /** État hors installation. */
-    void show(Phase phase, String version, String error) {
+    void show(Phase phase, String version, String error, boolean interrupted) {
         pseudoClassStateChanged(ERROR, phase == Phase.ERROR);
         logs.setVisible(phase == Phase.ERROR);
+        cancel.setVisible(phase == Phase.PREPARING || phase == Phase.DOWNLOADING || phase == Phase.UPDATING);
         percent.setText("");
         switch (phase) {
             case READY -> {
-                headline.setText("Prêt à jouer");
-                detail.setText(version);
+                headline.setText(interrupted ? "Installation interrompue" : "Prêt à jouer");
+                detail.setText(interrupted
+                        ? "Clique sur Jouer pour reprendre : les fichiers déjà téléchargés sont conservés."
+                        : version);
                 bar.setVisible(false);
                 bar.stop();
             }
@@ -99,7 +109,7 @@ final class StatusStrip extends VBox {
         };
         String stage = p.stageIndex() <= 1 ? "" : " · " + p.step();
         String count = p.stageCount() > 0 ? "  (" + p.stageIndex() + "/" + p.stageCount() + ")" : "";
-        headline.setText(verb + stage + count);
+        headline.setText((p.isOffline() ? "Hors ligne · " : "") + verb + stage + count);
         double f = p.fraction();
         bar.setProgress(f);
         percent.setText(f < 0 ? "" : Math.round(f * 100) + " %");

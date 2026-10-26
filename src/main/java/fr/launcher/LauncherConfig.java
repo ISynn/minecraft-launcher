@@ -17,10 +17,11 @@ public final class LauncherConfig {
     public static final String VERSION = "2.0.0-alpha";
 
     /**
-     * Nom du dossier du jeu (%APPDATA%/.nova sous Windows).
-     * Ne doit jamais valoir « pokeisland » : Windows ignore la casse et ce serait le dossier du launcher officiel.
+     * Nom du dossier du jeu (%APPDATA%/.pokeisland-prototype sous Windows).
+     * Ne doit jamais valoir « pokeisland » : Windows ignore la casse et ce serait le dossier du launcher officiel
+     * (voir {@link fr.launcher.util.Os#isOfficialLauncherDir}).
      */
-    public static final String DIR_NAME = "nova";
+    public static final String DIR_NAME = "pokeisland-prototype";
 
     /** Adresse du serveur : utilisée pour le statut en ligne et la connexion automatique. */
     public static final String SERVER_HOST = "localhost";
@@ -31,9 +32,10 @@ public final class LauncherConfig {
      * Si le modpack précise une version de Minecraft ou de Fabric, elle remplace celles ci-dessous.
      */
     public static final String MODPACK_URL = "";
-    public static final String MINECRAFT_VERSION = "26.3";
-    /** Vide = dernière version stable de Fabric Loader pour cette version de Minecraft. */
-    public static final String FABRIC_LOADER = "";
+    /** Version du serveur PokeIsland (relevée dans l'installation officielle : Minecraft 1.21.1, Fabric 0.17.3). */
+    public static final String MINECRAFT_VERSION = "1.21.1";
+    /** Version figée : tous les joueurs ont exactement le même chargeur. Vide = dernière version stable. */
+    public static final String FABRIC_LOADER = "0.17.3";
 
     /** Client ID de l'application Azure (voir README). Vide = connexion Microsoft désactivée. */
     public static final String AZURE_CLIENT_ID = "";

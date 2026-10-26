@@ -1,6 +1,7 @@
 package fr.launcher.ui.screens.account;
 
 import fr.launcher.core.auth.Account;
+import fr.launcher.core.auth.AccountStore;
 import fr.launcher.core.auth.MicrosoftAuth;
 import fr.launcher.ui.AppContext;
 import fr.launcher.ui.Icons;
@@ -64,8 +65,8 @@ public final class AccountScreen implements Screen {
         Label state = Ui.badge(configured ? "Disponible" : "Non activée dans ce prototype",
                 configured ? Ui.Tone.SUCCESS : Ui.Tone.WARNING);
         Label how = Ui.muted("La connexion suit le parcours officiel de Microsoft : un code s'affiche, tu le saisis "
-                + "sur microsoft.com/link. Le launcher ne voit jamais ton mot de passe, et les jetons de session "
-                + "ne sont jamais écrits dans le journal.");
+                + "sur microsoft.com/link. Le launcher ne voit jamais ton mot de passe. Les jetons de session sont "
+                + "chiffrés sur ton PC et ne sont jamais écrits dans le journal.");
         Label why = Ui.muted(configured ? ""
                 : "Pour l'activer, il faut une application Azure approuvée par Mojang. En attendant, "
                 + "le mode démo permet d'essayer le launcher avec un compte hors ligne.");
@@ -97,7 +98,8 @@ public final class AccountScreen implements Screen {
                 ? "Jeton valable jusqu'au " + TIME.format(Instant.ofEpochMilli(account.expiresAt()))
                 + ", renouvelé automatiquement"
                 : "Aucune : pas de jeton");
-        row(4, "Mémorisé", "Sur cet ordinateur, dans " + app.core.gameDir.resolve("launcher"));
+        row(4, "Mémorisé", (AccountStore.ENCRYPTED ? "Chiffré pour ta session Windows (DPAPI), dans " : "Dans ")
+                + app.core.dataDir.resolve("launcher"));
     }
 
     private void row(int index, String key, String value) {

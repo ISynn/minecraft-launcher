@@ -28,7 +28,21 @@ public enum Os {
         return LINUX;
     }
 
-    /** Dossier racine du jeu : %APPDATA%/.nova, ~/Library/Application Support/nova ou ~/.nova. */
+    /** Dossier du launcher officiel de PokeIsland, que le prototype ne doit jamais utiliser. */
+    private static final String OFFICIAL_DIR = ".pokeisland";
+
+    /**
+     * Vrai si le chemin désigne le dossier du launcher officiel ou l'un de ses sous-dossiers. La comparaison ignore
+     * la casse, comme Windows : « .pokeisland » et « .Pokeisland » sont le même dossier.
+     */
+    public static boolean isOfficialLauncherDir(Path dir) {
+        for (Path part : dir.toAbsolutePath().normalize()) {
+            if (part.toString().toLowerCase(Locale.ROOT).equals(OFFICIAL_DIR)) return true;
+        }
+        return false;
+    }
+
+    /** Dossier racine du launcher : %APPDATA%/.pokeisland-prototype, ~/Library/Application Support/… ou ~/.… */
     public static Path gameDir() {
         String home = System.getProperty("user.home");
         return switch (CURRENT) {

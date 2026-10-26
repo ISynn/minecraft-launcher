@@ -49,7 +49,8 @@ public final class NewsService {
             LOG.info(articles.size() + " actualités chargées depuis " + provider.name());
             return new NewsFeed(articles, NewsFeed.Source.LIVE, now);
         } catch (IOException | RuntimeException e) {
-            LOG.log(Level.WARNING, "Actualités indisponibles en ligne (" + e.getMessage() + "), repli local");
+            String reason = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+            LOG.log(Level.WARNING, "Actualités indisponibles en ligne (" + reason + "), repli local");
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

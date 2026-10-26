@@ -5,17 +5,20 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import fr.launcher.LauncherConfig;
 import fr.launcher.core.auth.Account;
+import fr.launcher.core.log.Log;
+import fr.launcher.core.settings.JvmArgs;
 import fr.launcher.core.settings.Settings;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -23,6 +26,9 @@ import java.util.stream.Collectors;
 /** Construit la ligne de commande Java et démarre Minecraft. */
 public final class GameLauncher {
 
+    private static final Logger LOG = Log.get(GameLauncher.class);
+
+    private static final int KEPT_OUTPUTS = 3;
     private static final Pattern PLACEHOLDER = Pattern.compile("\\$\\{([a-zA-Z_]+)}");
 
     /** Réglages mémoire recommandés par Mojang quand la version n'en fournit pas. */
@@ -44,10 +50,11 @@ public final class GameLauncher {
         Files.createDirectories(natives);
 
         boolean quickPlay = settings.autoConnect && !LauncherConfig.SERVER_HOST.isBlank();
+        boolean customSize = settings.customResolution && !settings.fullscreen;
         Map<String, Boolean> features = Map.of(
                 "is_quick_play_multiplayer", quickPlay,
                 "is_demo_user", false,
-                "has_custom_resolution", false);
+                "has_custom_resolution", customSize);
 
         List<String> classpath = new ArrayList<>();
         profile.libraries().forEach(lib -> classpath.add(lib.path().toString()));
@@ -75,13 +82,18 @@ public final class GameLauncher {
         vars.put("launcher_name", LauncherConfig.NAME);
         vars.put("launcher_version", LauncherConfig.VERSION);
         vars.put("quickPlayMultiplayer", LauncherConfig.SERVER_HOST + ":" + LauncherConfig.SERVER_PORT);
+        vars.put("resolution_width", Integer.toString(settings.windowWidth));
+        vars.put("resolution_height", Integer.toString(settings.windowHeight));
 
         List<String> command = new ArrayList<>();
         command.add(installation.java().toString());
         command.add("-Xmx" + settings.ramMb + "M");
         command.add("-Xms" + Math.min(settings.ramMb, 2048) + "M");
         command.addAll(defaultUserJvm(profile.vanilla(), features));
-        if (!settings.jvmArgs.isBlank()) command.addAll(Arrays.asList(settings.jvmArgs.trim().split("\\s+")));
+        // Options du joueur : validées dans les paramètres, revérifiées ici (fichier modifié à la main…).
+        JvmArgs.Parsed extra = JvmArgs.parse(settings.jvmArgs);
+        if (!extra.valid()) throw new IOException("Options Java refusées : " + extra.error());
+        command.addAll(extra.args());
 
         List<String> jvm = expand(profile.jvmArgs(), features, vars);
         if (jvm.stream().noneMatch(a -> a.equals(vars.get("classpath")))) {
@@ -91,15 +103,43 @@ public final class GameLauncher {
         command.addAll(jvm);
         command.add(profile.mainClass());
         command.addAll(expand(profile.gameArgs(), features, vars));
+        if (settings.fullscreen) command.add("--fullscreen");
+        // Journal détaillé uniquement ; le jeton (--accessToken) est masqué par le journal.
+        LOG.fine(() -> "Commande du jeu : " + String.join(" ", command));
 
         // La sortie du jeu va dans un fichier : si personne ne la lisait, le tampon se remplirait et bloquerait le jeu.
         Path output = outputLog();
         Files.createDirectories(output.getParent());
+        rotate(output);
         return new ProcessBuilder(command)
                 .directory(gameDir.toFile())
                 .redirectErrorStream(true)
                 .redirectOutput(output.toFile())
                 .start();
+    }
+
+    /**
+     * Garde les sorties des trois parties précédentes (game-output-1.log, -2, -3) : la trace d'un plantage
+     * n'est plus écrasée par la partie suivante.
+     */
+    static void rotate(Path output) {
+        try {
+            for (int i = KEPT_OUTPUTS - 1; i >= 1; i--) {
+                Path older = numbered(output, i);
+                if (Files.exists(older)) {
+                    Files.move(older, numbered(output, i + 1), StandardCopyOption.REPLACE_EXISTING);
+                }
+            }
+            if (Files.exists(output)) Files.move(output, numbered(output, 1), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            // un ancien journal verrouillé ne doit pas empêcher de jouer
+        }
+    }
+
+    static Path numbered(Path output, int index) {
+        String name = output.getFileName().toString();
+        int dot = name.lastIndexOf('.');
+        return output.resolveSibling(name.substring(0, dot) + "-" + index + name.substring(dot));
     }
 
     /** Fichier qui reçoit la sortie du jeu en cours (console Minecraft). */

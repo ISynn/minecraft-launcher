@@ -5,6 +5,7 @@ import fr.launcher.util.Http;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -25,6 +26,9 @@ import java.util.concurrent.Semaphore;
 /**
  * Télécharge des milliers de fichiers en parallèle avec des threads virtuels.
  * Un sémaphore limite le nombre de connexions simultanées pour ne pas saturer le réseau.
+ *
+ * <p>Annulation : interrompre le thread appelant arrête tous les transferts, supprime les fichiers partiels
+ * et lève {@link InterruptedException}. Rien n'est jamais laissé à moitié écrit.</p>
  */
 public final class Downloader {
 
@@ -36,8 +40,20 @@ public final class Downloader {
 
     public static void downloadAll(String step, List<DownloadTask> tasks, Progress progress)
             throws IOException, InterruptedException {
+        downloadAll(step, tasks, progress, true);
+    }
+
+    /**
+     * @param online faux = hors ligne : on vérifie seulement ; un fichier absent ou abîmé est une erreur claire
+     */
+    public static void downloadAll(String step, List<DownloadTask> tasks, Progress progress, boolean online)
+            throws IOException, InterruptedException {
         long total = tasks.stream().mapToLong(DownloadTask::size).sum();
         progress.begin(step, total, tasks.size());
+        if (!online) {
+            verifyOffline(tasks, progress);
+            return;
+        }
         Semaphore permits = new Semaphore(PARALLEL);
 
         try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
@@ -58,15 +74,39 @@ public final class Downloader {
                     return null;
                 }));
             }
-            for (Future<?> future : futures) {
-                try {
-                    future.get();
-                } catch (ExecutionException e) {
-                    futures.forEach(f -> f.cancel(true));
-                    if (e.getCause() instanceof IOException io) throw io;
-                    throw new IOException(e.getCause());
+            try {
+                for (Future<?> future : futures) {
+                    try {
+                        future.get();
+                    } catch (ExecutionException e) {
+                        Throwable cause = e.getCause();
+                        if (cause instanceof InterruptedException || cause instanceof InterruptedIOException) {
+                            throw new InterruptedException("Téléchargement annulé");
+                        }
+                        if (cause instanceof IOException io) throw io;
+                        throw new IOException(cause);
+                    }
                 }
+            } catch (IOException | InterruptedException e) {
+                // Annulation ou échec : on interrompt tous les transferts. Surtout pas Future.cancel() : la tâche
+                // serait considérée finie aussitôt et close() n'attendrait pas son nettoyage (fichier .part).
+                // Avec shutdownNow(), close() attend que chaque transfert soit réellement arrêté.
+                executor.shutdownNow();
+                throw e;
             }
+        }
+    }
+
+    private static void verifyOffline(List<DownloadTask> tasks, Progress progress) throws IOException {
+        List<String> missing = new ArrayList<>();
+        for (DownloadTask task : tasks) {
+            if (isValid(task)) progress.addBytes(task.size());
+            else missing.add(task.target().getFileName().toString());
+            progress.fileDone();
+        }
+        if (!missing.isEmpty()) {
+            throw new OfflineException(missing.size() + " fichier(s) manquant(s) ou abîmé(s), par exemple "
+                    + missing.getFirst() + " : une connexion Internet est nécessaire pour les télécharger.");
         }
     }
 
@@ -85,13 +125,15 @@ public final class Downloader {
             try {
                 transfer(task, progress);
                 return;
+            } catch (InterruptedIOException e) {
+                throw e; // annulation : surtout pas de nouvel essai
             } catch (IOException e) {
                 last = e;
-                if (e instanceof CountedIOException counted) progress.addBytes(-counted.counted);
                 if (attempt < RETRIES) Thread.sleep(400L * attempt);
             }
         }
-        throw new IOException("Échec du téléchargement de " + task.target().getFileName() + " : " + last.getMessage(), last);
+        throw new IOException("Échec du téléchargement de " + task.target().getFileName() + " : "
+                + last.getMessage(), last);
     }
 
     /** Écrit dans un fichier temporaire, vérifie le hash, puis remplace : jamais de fichier à moitié écrit. */
@@ -109,41 +151,51 @@ public final class Downloader {
 
         MessageDigest digest = Hash.sha1();
         long written = 0;
-        try (InputStream in = response.body(); OutputStream out = Files.newOutputStream(tmp)) {
-            byte[] buffer = new byte[32 * 1024];
-            int read;
-            while ((read = in.read(buffer)) > 0) {
-                out.write(buffer, 0, read);
-                digest.update(buffer, 0, read);
-                written += read;
-                progress.addNetworkBytes(read);
-                if (task.size() > 0) progress.addBytes(read);
+        boolean completed = false;
+        try {
+            try (InputStream in = response.body(); OutputStream out = Files.newOutputStream(tmp)) {
+                byte[] buffer = new byte[32 * 1024];
+                int read;
+                while ((read = in.read(buffer)) > 0) {
+                    if (Thread.currentThread().isInterrupted()) {
+                        throw new InterruptedIOException("Téléchargement annulé");
+                    }
+                    out.write(buffer, 0, read);
+                    digest.update(buffer, 0, read);
+                    written += read;
+                    progress.addNetworkBytes(read);
+                    if (task.size() > 0) progress.addBytes(read);
+                }
+            } catch (IOException e) {
+                // Progression remise à son état d'avant ce transfert.
+                if (task.size() > 0) progress.addBytes(-written);
+                if (e instanceof InterruptedIOException || Thread.currentThread().isInterrupted()) {
+                    throw new InterruptedIOException("Téléchargement annulé");
+                }
+                throw e;
             }
-        } catch (IOException e) {
-            Files.deleteIfExists(tmp);
-            throw new CountedIOException(e, task.size() > 0 ? written : 0);
-        }
 
-        if (task.size() <= 0) {
-            progress.addUnknownSize(written);
-            progress.addBytes(written);
+            if (task.size() <= 0) {
+                progress.addUnknownSize(written);
+                progress.addBytes(written);
+            }
+            String actual = HexFormat.of().formatHex(digest.digest());
+            if (task.sha1() != null && !task.sha1().equalsIgnoreCase(actual)) {
+                if (task.size() > 0) progress.addBytes(-written);
+                throw new IOException("Fichier corrompu : " + target.getFileName());
+            }
+            Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING);
+            completed = true;
+        } finally {
+            // Quelle que soit la sortie (erreur, annulation, exception inattendue), aucun fichier partiel ne reste.
+            if (!completed) Files.deleteIfExists(tmp);
         }
-        String actual = HexFormat.of().formatHex(digest.digest());
-        if (task.sha1() != null && !task.sha1().equalsIgnoreCase(actual)) {
-            Files.deleteIfExists(tmp);
-            if (task.size() > 0) progress.addBytes(-written);
-            throw new IOException("Fichier corrompu : " + target.getFileName());
-        }
-        Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING);
     }
 
-    /** Permet d'annuler la progression comptée quand un téléchargement échoue en cours de route. */
-    private static final class CountedIOException extends IOException {
-        CountedIOException(IOException cause, long counted) {
-            super(cause.getMessage(), cause);
-            this.counted = counted;
+    /** Hors ligne, des fichiers manquent : l'interface peut proposer de réessayer une fois connecté. */
+    public static final class OfflineException extends IOException {
+        public OfflineException(String message) {
+            super(message);
         }
-
-        final long counted;
     }
 }

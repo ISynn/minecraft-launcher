@@ -19,6 +19,8 @@ import fr.launcher.util.Http;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
+import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -43,7 +45,15 @@ public final class LauncherUi {
             return;
         }
         LOG.info(LauncherConfig.WINDOW_TITLE + " " + LauncherConfig.VERSION + " · Java " + Runtime.version()
-                + " · " + System.getProperty("os.name") + " · dossier " + core.gameDir);
+                + " · " + System.getProperty("os.name") + " · jeu dans " + core.gameDir);
+        if (!core.instanceLock.acquire()) {
+            LOG.info("Le launcher est déjà ouvert : cette seconde instance se ferme");
+            dialog(Alert.AlertType.INFORMATION, "Le launcher est déjà ouvert",
+                    "Une seule fenêtre à la fois : deux launchers installeraient le jeu en même temps "
+                            + "dans le même dossier. Retrouve la fenêtre ouverte dans ta barre des tâches.");
+            Platform.exit();
+            return;
+        }
 
         long coreReady = System.nanoTime();
         try {
@@ -81,6 +91,19 @@ public final class LauncherUi {
         }
     }
 
+    /** Boîte de dialogue système dont le texte s'affiche en entier (retour à la ligne, hauteur adaptée). */
+    private static void dialog(Alert.AlertType type, String header, String text) {
+        Alert alert = new Alert(type);
+        alert.setTitle(LauncherConfig.WINDOW_TITLE);
+        alert.setHeaderText(header);
+        Label content = new Label(text);
+        content.setWrapText(true);
+        content.setMaxWidth(440);
+        alert.getDialogPane().setContent(content);
+        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+        alert.showAndWait();
+    }
+
     private static long ms(long nanos) {
         return nanos / 1_000_000;
     }
@@ -110,12 +133,9 @@ public final class LauncherUi {
     /** Le launcher n'a pas pu démarrer : on le dit clairement plutôt que de fermer en silence. */
     private static void fatal(Throwable e) {
         LOG.log(Level.SEVERE, "Démarrage impossible", e);
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(LauncherConfig.WINDOW_TITLE);
-        alert.setHeaderText("Le launcher n'a pas pu démarrer");
-        alert.setContentText(Fx.message(e) + "\n\nLes détails sont dans le journal : %APPDATA%\\."
-                + LauncherConfig.DIR_NAME + "\\launcher\\logs");
-        alert.showAndWait();
+        dialog(Alert.AlertType.ERROR, "Le launcher n'a pas pu démarrer",
+                Fx.message(e) + "\n\nLes détails sont dans le journal : %APPDATA%\\." + LauncherConfig.DIR_NAME
+                        + "\\launcher\\logs");
         Platform.exit();
     }
 }

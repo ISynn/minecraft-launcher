@@ -32,6 +32,8 @@ public final class Switch extends StackPane {
         StackPane.setAlignment(thumb, Pos.CENTER_LEFT);
         StackPane.setMargin(thumb, new Insets(0, 0, 0, 3));
         getChildren().addAll(track, thumb);
+        // Taille fixe : un long texte voisin ne doit jamais l'écraser.
+        setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
         setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
         setCursor(Cursor.HAND);
         setFocusTraversable(true);

@@ -83,7 +83,7 @@ public final class HomeScreen implements Screen {
         root.getStyleClass().add("home");
 
         playButton = new PlayButton(play::play);
-        strip = new StatusStrip(() -> app.openFolder(app.core.logsDir));
+        strip = new StatusStrip(() -> app.openFolder(app.core.logsDir), play::cancel);
         news = new NewsCarousel(app::open);
         app.news.feedProperty().addListener((o, old, feed) -> {
             if (feed != null) news.setFeed(feed, app.news.sourceName());
@@ -126,10 +126,12 @@ public final class HomeScreen implements Screen {
     }
 
     private void onPhase(Phase phase) {
-        String version = play.versionLabelProperty().get().isEmpty()
-                ? "Minecraft " + LauncherConfig.MINECRAFT_VERSION + " · Fabric"
-                : play.versionLabelProperty().get();
-        strip.show(phase, version, play.errorProperty().get());
+        String version = (play.versionLabelProperty().get().isEmpty()
+                ? "Minecraft " + LauncherConfig.MINECRAFT_VERSION + " · Fabric " + LauncherConfig.FABRIC_LOADER
+                : play.versionLabelProperty().get())
+                + (app.core.settings.checkUpdates ? "" : " · mode hors ligne (Paramètres)");
+        PlayController.RunResult last = play.lastResultProperty().get();
+        strip.show(phase, version, play.errorProperty().get(), last != null && last.cancelled());
         playButton.show(phase, buttonDetail(phase, play.progress()));
         boolean installing = phase == Phase.PREPARING || phase == Phase.DOWNLOADING || phase == Phase.UPDATING;
         if (installing) installTicker.start();

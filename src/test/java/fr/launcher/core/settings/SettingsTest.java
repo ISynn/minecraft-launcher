@@ -34,7 +34,18 @@ class SettingsTest {
         Files.writeString(file, "{\"ramMb\": 999999}");
         assertEquals(Settings.maxRamMb(), Settings.load(file).ramMb);
         Files.writeString(file, "{\"ramMb\": 12}");
-        assertEquals(1024, Settings.load(file).ramMb);
+        assertEquals(Math.min(Settings.MIN_RAM_MB, Settings.maxRamMb()), Settings.load(file).ramMb);
+    }
+
+    @Test
+    void valeursInvalidesCorrigees() throws IOException {
+        Path file = dir.resolve("settings.json");
+        Files.writeString(file, "{\"jvmArgs\": \"-javaagent:espion.jar\", \"windowWidth\": 5,"
+                + " \"gameDir\": \"C:/Users/x/AppData/Roaming/.Pokeisland\"}");
+        Settings s = Settings.load(file);
+        assertEquals("", s.jvmArgs, "option dangereuse retirée");
+        assertEquals(Settings.MIN_WIDTH, s.windowWidth);
+        assertEquals("", s.gameDir, "le dossier du launcher officiel est refusé");
     }
 
     @Test

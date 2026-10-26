@@ -15,6 +15,7 @@ import javafx.util.Duration;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
 /** Petits outils JavaFX partagés par toute l'interface. */
@@ -37,9 +38,11 @@ public final class Fx {
     /**
      * Exécute un travail lent (réseau, disque) hors du thread graphique, puis revient sur celui-ci
      * pour mettre l'interface à jour. L'interface ne gèle donc jamais.
+     *
+     * @return la tâche, que {@code cancel(true)} interrompt (téléchargements compris)
      */
-    public static <T> void async(Work<T> work, Consumer<T> onSuccess, Consumer<Throwable> onError) {
-        BACKGROUND.submit(() -> {
+    public static <T> Future<?> async(Work<T> work, Consumer<T> onSuccess, Consumer<Throwable> onError) {
+        return BACKGROUND.submit(() -> {
             try {
                 T result = work.run();
                 Platform.runLater(() -> onSuccess.accept(result));

@@ -442,3 +442,15 @@
     -fx-shape: " ";
     -fx-padding: 0;
 }
+
+/* Message d'erreur sous un champ */
+.field-error {
+    -fx-text-fill: #fca5a5;
+    -fx-font-size: 12px;
+}
+
+/* Avatar de secours : initiale du pseudo sur fond jaune (sans réseau) */
+.avatar-initial {
+    -fx-text-fill: -pi-yellow;
+    -fx-font-weight: 800;
+}

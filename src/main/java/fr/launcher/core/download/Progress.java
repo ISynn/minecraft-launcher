@@ -18,6 +18,8 @@ public final class Progress {
     /** Total reçu du réseau depuis le début de l'opération (toutes étapes). */
     private final AtomicLong totalNetworkBytes = new AtomicLong();
     private volatile String step = "";
+    /** Installation menée hors ligne (choix du joueur ou réseau injoignable). */
+    private volatile boolean offline;
     private volatile int stage;
     private volatile int stages;
 
@@ -35,6 +37,7 @@ public final class Progress {
         stages = 0;
         networkBytes.set(0);
         totalNetworkBytes.set(0);
+        offline = false;
         begin("", 0, 0);
     }
 
@@ -65,6 +68,14 @@ public final class Progress {
     void addNetworkBytes(long n) {
         networkBytes.addAndGet(n);
         totalNetworkBytes.addAndGet(n);
+    }
+
+    public void setOffline(boolean value) {
+        offline = value;
+    }
+
+    public boolean isOffline() {
+        return offline;
     }
 
     public long totalNetworkBytes() {

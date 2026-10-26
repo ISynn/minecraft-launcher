@@ -69,11 +69,17 @@ public final class InstallScreen implements Screen {
                 "Recalcule l'empreinte de chaque fichier et retélécharge ceux qui sont absents ou abîmés."));
         repair.setOnAction(e -> play.verify());
         repair.disableProperty().bind(play.busyProperty());
+        Button cancel = Ui.secondary("Annuler", Icons.CLOSE);
+        cancel.setOnAction(e -> play.cancel());
+        cancel.visibleProperty().bind(play.phaseProperty().isEqualTo(Phase.PREPARING)
+                .or(play.phaseProperty().isEqualTo(Phase.DOWNLOADING))
+                .or(play.phaseProperty().isEqualTo(Phase.UPDATING)));
+        cancel.managedProperty().bind(cancel.visibleProperty());
         statusBadge.setAlignment(Pos.CENTER);
 
         root = Ui.page(
                 Ui.pageHeader("Installation", "État des fichiers du jeu, téléchargements et vérifications.",
-                        statusBadge, repair),
+                        statusBadge, cancel, repair),
                 Ui.columns(progressCard(), new VBox(18, detailsCard(), lastRunCard())));
 
         play.phaseProperty().addListener((o, a, b) -> refresh());
@@ -175,6 +181,10 @@ public final class InstallScreen implements Screen {
             } else if (result.success()) {
                 state = StageRow.State.DONE;
                 text = "Vérifié";
+            } else if (result.cancelled()) {
+                state = row.index < result.failedStage() ? StageRow.State.DONE : StageRow.State.PENDING;
+                text = row.index < result.failedStage() ? "Vérifié"
+                        : row.index == result.failedStage() ? "Interrompu" : "Non atteint";
             } else {
                 state = row.index < result.failedStage() ? StageRow.State.DONE
                         : row.index == result.failedStage() ? StageRow.State.FAILED : StageRow.State.PENDING;
@@ -192,7 +202,8 @@ public final class InstallScreen implements Screen {
             }
             double f = p.fraction();
             bar.setProgress(f);
-            headline.setText(verb(phase, p) + " · étape " + current + " sur " + p.stageCount());
+            headline.setText((p.isOffline() ? "Hors ligne · " : "") + verb(phase, p) + " · étape " + current
+                    + " sur " + p.stageCount());
             percent.setText(f < 0 ? "" : Math.round(f * 100) + " %");
             String downloaded = p.totalNetworkBytes() == 0
                     ? "aucun téléchargement pour l'instant"
@@ -239,6 +250,7 @@ public final class InstallScreen implements Screen {
     private static Node statusBadge(Phase phase, RunResult result) {
         boolean installing = phase == Phase.PREPARING || phase == Phase.DOWNLOADING || phase == Phase.UPDATING;
         if (installing) return Ui.badge("En cours", Ui.Tone.ACCENT);
+        if (result != null && result.cancelled() && phase == Phase.READY) return Ui.badge("Annulée", Ui.Tone.WARNING);
         if (phase == Phase.ERROR || (result != null && !result.success())) return Ui.badge("Erreur", Ui.Tone.DANGER);
         if (result != null) return Ui.badge("À jour", Ui.Tone.SUCCESS);
         return Ui.badge("Non vérifiée depuis l'ouverture", Ui.Tone.NEUTRAL);
@@ -251,7 +263,7 @@ public final class InstallScreen implements Screen {
             return;
         }
         String kind = r.deepVerify() ? "Vérification complète" : "Préparation avant lancement";
-        Label title = new Label(kind + (r.success() ? " réussie" : " échouée"));
+        Label title = new Label(kind + (r.success() ? " réussie" : r.cancelled() ? " annulée" : " échouée"));
         title.getStyleClass().add(r.success() ? "result-ok" : "result-failed");
         String downloaded = r.downloadedBytes() > 0
                 ? Fx.size(r.downloadedBytes()) + " téléchargés"
@@ -259,7 +271,7 @@ public final class InstallScreen implements Screen {
         Label facts = Ui.muted("À " + TIME.format(r.finishedAt()) + " · durée " + seconds(r.duration())
                 + " · " + downloaded);
         lastRun.getChildren().setAll(title, facts);
-        if (!r.success()) {
+        if (!r.success() && !r.cancelled()) {
             List<String> names = GameInstaller.STAGE_NAMES;
             String stage = names.get(Math.clamp(r.failedStage(), 1, names.size()) - 1);
             Label error = Ui.muted("Étape « " + stage + " » : " + r.error());

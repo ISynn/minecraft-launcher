@@ -47,6 +47,21 @@
                         <arg>-Xlint:all,-serial,-requires-transitive-automatic</arg>
                     </compilerArgs>
                 </configuration>
+                <executions>
+                    <execution>
+                        <!-- Les tests réseau utilisent le petit serveur HTTP du JDK : réservé aux tests. -->
+                        <id>default-testCompile</id>
+                        <configuration>
+                            <compilerArgs>
+                                <arg>-Xlint:all,-serial,-requires-transitive-automatic</arg>
+                                <arg>--add-modules</arg>
+                                <arg>jdk.httpserver</arg>
+                                <arg>--add-reads</arg>
+                                <arg>fr.launcher=jdk.httpserver</arg>
+                            </compilerArgs>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

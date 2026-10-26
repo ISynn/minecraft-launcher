@@ -68,6 +68,11 @@ public final class Log {
         }
     }
 
+    /** Journal détaillé (diagnostic) : inclut les messages de niveau FINE dans le fichier. */
+    public static void setVerbose(boolean verbose) {
+        Logger.getLogger(ROOT).setLevel(verbose ? Level.FINE : Level.INFO);
+    }
+
     public static Logger get(Class<?> type) {
         return Logger.getLogger(ROOT + "." + type.getSimpleName());
     }

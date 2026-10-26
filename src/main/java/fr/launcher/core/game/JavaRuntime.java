@@ -32,29 +32,37 @@ final class JavaRuntime {
         this.runtimesDir = gameDir.resolve("runtime");
     }
 
-    /** Installe (ou vérifie) le runtime demandé et renvoie le chemin de l'exécutable java. */
-    Path install(JsonObject vanilla, Progress progress) throws IOException, InterruptedException {
+    /**
+     * Installe (ou vérifie) le runtime demandé et renvoie le chemin de l'exécutable java.
+     * Hors ligne, ou si Mojang ne répond pas, le runtime déjà installé est utilisé tel quel.
+     */
+    Path install(JsonObject vanilla, Progress progress, boolean online) throws IOException, InterruptedException {
         String component = vanilla.has("javaVersion")
                 ? vanilla.getAsJsonObject("javaVersion").get("component").getAsString()
                 : "jre-legacy";
         Path home = runtimesDir.resolve(component);
         Path java = executable(home);
-
-        JsonObject platforms;
-        try {
-            platforms = Http.getJson(INDEX);
-        } catch (IOException e) {
+        if (!online) {
             if (Files.isRegularFile(java)) return java;
-            throw e;
-        }
-        JsonObject platform = platforms.getAsJsonObject(Os.javaRuntimePlatform());
-        JsonArray builds = platform == null ? null : platform.getAsJsonArray(component);
-        if (builds == null || builds.isEmpty()) {
-            return currentJava(); // pas de runtime Mojang pour cette plateforme
+            throw new Downloader.OfflineException("Java n'est pas encore installé : une connexion est nécessaire.");
         }
 
-        JsonObject manifestRef = builds.get(0).getAsJsonObject().getAsJsonObject("manifest");
-        JsonObject files = Http.getJson(manifestRef.get("url").getAsString()).getAsJsonObject("files");
+        JsonObject files;
+        try {
+            JsonObject platforms = Http.getJson(INDEX);
+            JsonObject platform = platforms.getAsJsonObject(Os.javaRuntimePlatform());
+            JsonArray builds = platform == null ? null : platform.getAsJsonArray(component);
+            if (builds == null || builds.isEmpty()) {
+                return currentJava(); // pas de runtime Mojang pour cette plateforme
+            }
+            JsonObject manifestRef = builds.get(0).getAsJsonObject().getAsJsonObject("manifest");
+            files = Http.getJson(manifestRef.get("url").getAsString()).getAsJsonObject("files");
+        } catch (IOException e) {
+            // Index ou manifeste injoignable : le runtime déjà installé suffit pour jouer.
+            if (!Files.isRegularFile(java)) throw e;
+            progress.setOffline(true);
+            return java;
+        }
 
         List<DownloadTask> tasks = new ArrayList<>();
         List<Path> executables = new ArrayList<>();

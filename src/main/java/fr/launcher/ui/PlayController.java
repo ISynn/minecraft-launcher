@@ -18,6 +18,7 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.util.Duration;
 
 import java.time.Instant;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -60,8 +61,8 @@ public final class PlayController {
      *
      * @param failedStage étape en échec (1 à 5), 0 si réussite
      */
-    public record RunResult(boolean success, boolean deepVerify, Instant finishedAt, java.time.Duration duration,
-                            long downloadedBytes, int failedStage, String error) {
+    public record RunResult(boolean success, boolean cancelled, boolean deepVerify, Instant finishedAt,
+                            java.time.Duration duration, long downloadedBytes, int failedStage, String error) {
     }
 
     private final AppContext app;
@@ -74,6 +75,8 @@ public final class PlayController {
     /** Pendant l'installation, la phase est recalculée quelques fois par seconde à partir de la progression. */
     private final Timeline installTicker = new Timeline(new KeyFrame(Duration.millis(150), e -> refreshInstallPhase()));
     private boolean installedBefore;
+    private Future<?> task;
+    private volatile boolean cancelRequested;
 
     PlayController(AppContext app) {
         this.app = app;
@@ -95,6 +98,7 @@ public final class PlayController {
         progress.reset();
         error.set("");
         long started = System.nanoTime();
+        cancelRequested = false;
         // Un échec au démarrage du jeu, après une installation réussie, ne doit pas effacer ce bilan.
         AtomicBoolean installed = new AtomicBoolean();
         installedBefore = app.core.installer.hasInstallation();
@@ -103,9 +107,10 @@ public final class PlayController {
         LOG.info(launch ? "Jouer : préparation (installation existante : " + installedBefore + ")"
                 : "Vérification approfondie des fichiers");
 
-        Fx.async(() -> {
+        task = Fx.async(() -> {
             Account account = app.freshAccount();
-            GameInstaller.Installation installation = app.core.installer.install(progress, deepVerify);
+            GameInstaller.Installation installation = app.core.installer.install(progress, deepVerify,
+                    app.core.settings.checkUpdates);
             installed.set(true);
             Platform.runLater(() -> {
                 versionLabel.set(installation.profile().displayName());
@@ -127,6 +132,15 @@ public final class PlayController {
             }
         }, failure -> {
             installTicker.stop();
+            if (cancelRequested && !installed.get()) {
+                LOG.info("Installation annulée par le joueur");
+                lastResult.set(new RunResult(false, true, deepVerify, Instant.now(),
+                        java.time.Duration.ofNanos(System.nanoTime() - started), progress.totalNetworkBytes(),
+                        progress.stageIndex(), "Annulée"));
+                phase.set(Phase.READY);
+                app.toast(Toasts.Kind.INFO, "Installation annulée", "Les fichiers déjà vérifiés sont conservés.");
+                return;
+            }
             LOG.log(Level.WARNING, launch ? "Lancement impossible" : "Vérification impossible", failure);
             error.set(Fx.message(failure));
             if (!installed.get()) lastResult.set(result(false, deepVerify, started, error.get()));
@@ -134,8 +148,20 @@ public final class PlayController {
         });
     }
 
+    /**
+     * Annule l'installation en cours (téléchargements interrompus, fichiers partiels supprimés).
+     * Sans effet une fois le jeu lancé.
+     */
+    public void cancel() {
+        Phase current = phase.get();
+        boolean installing = current == Phase.PREPARING || current == Phase.DOWNLOADING || current == Phase.UPDATING;
+        if (!installing || task == null) return;
+        cancelRequested = true;
+        task.cancel(true);
+    }
+
     private RunResult result(boolean success, boolean deepVerify, long startedNanos, String message) {
-        return new RunResult(success, deepVerify, Instant.now(),
+        return new RunResult(success, false, deepVerify, Instant.now(),
                 java.time.Duration.ofNanos(System.nanoTime() - startedNanos), progress.totalNetworkBytes(),
                 success ? 0 : Math.max(1, progress.stageIndex()), message);
     }
@@ -143,7 +169,9 @@ public final class PlayController {
     private void refreshInstallPhase() {
         if (!phase.get().busy() || phase.get() == Phase.LAUNCHING) return;
         Phase next;
-        if (!progress.isDownloading()) {
+        // Dès qu'un fichier est arrivé du réseau, l'opération est un téléchargement jusqu'au bout : pas d'aller-retour
+        // « Préparation » à chaque changement d'étape.
+        if (progress.totalNetworkBytes() == 0) {
             next = Phase.PREPARING;
         } else if (installedBefore) {
             next = Phase.UPDATING;

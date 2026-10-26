@@ -15,7 +15,7 @@ import java.util.logging.Logger;
  *
  * <p>Les visuels de PokeIsland appartiennent à leurs auteurs : ils ne sont pas versionnés avec le code.
  * On les cherche dans {@code ./branding/} (développement, ignoré par Git) puis dans
- * {@code <dossier du jeu>/launcher/branding/}. Sans eux, le launcher garde un rendu complet de secours.</p>
+ * {@code <dossier du launcher>/launcher/branding/}. Sans eux, le launcher garde un rendu complet de secours.</p>
  */
 public final class Branding {
 
@@ -24,9 +24,9 @@ public final class Branding {
 
     private final List<Path> directories = new ArrayList<>();
 
-    public Branding(Path gameDir) {
+    public Branding(Path dataDir) {
         directories.add(Path.of("branding"));
-        directories.add(gameDir.resolve("launcher").resolve("branding"));
+        directories.add(dataDir.resolve("launcher").resolve("branding"));
     }
 
     /**

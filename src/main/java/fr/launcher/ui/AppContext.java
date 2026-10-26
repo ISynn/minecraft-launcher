@@ -39,7 +39,7 @@ public final class AppContext {
         this.core = core;
         this.stage = stage;
         this.host = host;
-        this.branding = new Branding(core.gameDir);
+        this.branding = new Branding(core.dataDir);
         this.news = new NewsStore(core.news);
     }
 
