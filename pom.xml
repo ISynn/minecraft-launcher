@@ -6,7 +6,8 @@
 
     <groupId>fr.launcher</groupId>
     <artifactId>launcher</artifactId>
-    <version>1.0.0</version>
+    <!-- Même valeur que LauncherConfig.VERSION -->
+    <version>2.0.0-alpha</version>
     <name>PokeIsland Launcher (prototype)</name>
 
     <properties>

@@ -14,6 +14,7 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
@@ -109,6 +110,11 @@ public final class AppShell {
             }
         });
         stage.setTitle(LauncherConfig.WINDOW_TITLE);
+        // Icône de la barre des tâches (monogramme original, voir packaging/make-icon.ps1) : Windows choisit la taille.
+        for (int size : new int[]{16, 32, 64, 256}) {
+            stage.getIcons().add(new Image(Theme.class.getResource("/fr/launcher/assets/icons/icon-" + size + ".png")
+                    .toExternalForm()));
+        }
         stage.setResizable(false);
         stage.setScene(scene);
         // Fenêtre cachée pendant la partie : sans cela, JavaFX considérerait l'application terminée et la fermerait,
