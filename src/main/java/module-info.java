@@ -1,3 +1,4 @@
+// © 2026 ISynn — tous droits réservés. Voir le fichier LICENSE.
 module fr.launcher {
     requires javafx.controls;
     requires java.net.http;

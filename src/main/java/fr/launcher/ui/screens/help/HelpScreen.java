@@ -1,3 +1,4 @@
+// © 2026 ISynn — tous droits réservés. Voir le fichier LICENSE.
 package fr.launcher.ui.screens.help;
 
 import fr.launcher.LauncherConfig;
@@ -58,7 +59,8 @@ public final class HelpScreen implements Screen {
                 Ui.columns(faqCard(), diagnosticsCard()),
                 linksRow(),
                 Ui.muted(LauncherConfig.WINDOW_TITLE + " " + LauncherConfig.VERSION + " — " + LauncherConfig.DISCLAIMER
-                        + ". Projet indépendant, non affilié à PokeIsland, Mojang Studios ni Microsoft."));
+                        + ". Projet indépendant, non affilié à PokeIsland, Mojang Studios ni Microsoft.\n"
+                        + LauncherConfig.COPYRIGHT + ". Code réservé à l'évaluation de la candidature de l'auteur."));
     }
 
     @Override
@@ -128,6 +130,7 @@ public final class HelpScreen implements Screen {
                 : account.type() == Account.Type.MICROSOFT ? "Microsoft" : "hors ligne (démo)";
         return String.join("\n",
                 LauncherConfig.WINDOW_TITLE + " " + LauncherConfig.VERSION,
+                LauncherConfig.COPYRIGHT,
                 "Jeu : " + (version.isEmpty() ? "Minecraft " + LauncherConfig.MINECRAFT_VERSION + " · Fabric" : version),
                 "Système : " + System.getProperty("os.name") + " " + System.getProperty("os.version")
                         + " (" + System.getProperty("os.arch") + ")",

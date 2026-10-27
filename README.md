@@ -9,6 +9,7 @@
 ![Minecraft](https://img.shields.io/badge/Minecraft-1.21.1-62B47A?style=flat-square)
 ![Fabric](https://img.shields.io/badge/Fabric-0.17.3-DBB68B?style=flat-square)
 ![Tests](https://img.shields.io/badge/tests-72%20r%C3%A9ussis-2ea043?style=flat-square)
+![Licence](https://img.shields.io/badge/licence-tous%20droits%20r%C3%A9serv%C3%A9s-d73a49?style=flat-square)
 
 <img src="docs/accueil.jpg" alt="Écran d'accueil du launcher" width="860">
 
@@ -21,6 +22,10 @@ pour la démonstration ; les fichiers ne sont pas fournis avec le code (voir <a 
 > **Prototype non officiel**, réalisé dans le cadre d'une candidature de développeur. Il n'est ni édité, ni approuvé
 > par PokeIsland, Mojang Studios ou Microsoft. La mention « Prototype non officiel » reste affichée en permanence
 > dans la fenêtre.
+>
+> **© 2026 ISynn — tous droits réservés.** Le code est consultable et le prototype peut être lancé uniquement pour
+> évaluer la candidature de son auteur. Toute copie, réutilisation ou intégration, même partielle, demande son
+> accord écrit (voir [`LICENSE`](LICENSE)).
 
 ## Sommaire
 
@@ -340,6 +345,9 @@ dossier de données vierge, mode démo, puis Jouer.
 - Têtes de joueurs via [mc-heads.net](https://mc-heads.net) ; [Gson](https://github.com/google/gson) (Apache 2.0) ;
   [OpenJFX](https://openjfx.io) (GPL v2 + Classpath Exception) ; [Fabric](https://fabricmc.net) pour le chargeur de mods.
 - Icône du launcher : monogramme original ([`packaging/make-icon.ps1`](packaging/make-icon.ps1)).
+
+**Code et documentation : © 2026 ISynn, tous droits réservés** ([`LICENSE`](LICENSE)). Les composants ci-dessus
+restent sous leurs propres licences.
 
 PokeIsland, son logo et ses visuels appartiennent à leurs auteurs. Minecraft est une marque de Mojang AB ; ce projet
 n'est pas affilié à Mojang Studios ni à Microsoft.

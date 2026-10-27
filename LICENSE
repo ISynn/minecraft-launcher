@@ -1,0 +1,48 @@
+PokeIsland Launcher (prototype)
+Copyright © 2026 ISynn (github.com/ISynn). Tous droits réservés.
+
+1. PROPRIÉTÉ
+
+Ce logiciel et tous les éléments créés par l'auteur pour ce projet (code source et code compilé,
+scripts, feuilles de style, documentation, captures d'écran, icône originale), ci-après « le Logiciel »,
+sont la propriété exclusive de leur auteur, ISynn. Ils sont protégés par le droit d'auteur, notamment par
+le Code de la propriété intellectuelle français (articles L111-1, L112-2 et L122-6).
+
+2. AUCUNE LICENCE ACCORDÉE
+
+La mise à disposition du Logiciel, y compris sur GitHub ou sous forme d'archive téléchargeable,
+n'accorde aucune licence et ne transfère aucun droit. Sans l'autorisation écrite et préalable de
+l'auteur, il est interdit :
+  - de copier ou reproduire le Logiciel, en tout ou en partie ;
+  - de le modifier, l'adapter, le traduire ou en créer des œuvres dérivées ;
+  - d'en intégrer tout ou partie dans un autre logiciel ou service, y compris un launcher de serveur ;
+  - de le distribuer, publier, vendre, louer ou mettre à disposition de tiers ;
+  - de l'utiliser à des fins commerciales ou en production.
+
+3. SEULE UTILISATION PERMISE
+
+Les personnes à qui l'auteur a donné accès peuvent consulter le code et exécuter le prototype dans le
+seul but d'évaluer la candidature de l'auteur. Cette permission est personnelle, temporaire et peut
+être retirée à tout moment.
+
+4. ÉLÉMENTS DE TIERS (NON COUVERTS PAR CE FICHIER)
+
+Les composants suivants restent la propriété de leurs auteurs et sont soumis à leurs propres licences :
+  - police Kanit : SIL Open Font License 1.1 (voir src/main/resources/fr/launcher/assets/fonts/OFL.txt) ;
+  - Gson : Apache License 2.0 ;
+  - OpenJFX : GNU GPL v2 avec Classpath Exception ;
+  - environnement Java inclus dans l'archive Windows : voir le dossier runtime/legal de l'archive.
+Le nom, le logo et les visuels de PokeIsland appartiennent à PokeIsland. Minecraft est une marque de
+Mojang AB. Ce prototype n'est ni affilié à PokeIsland, Mojang Studios ou Microsoft, ni approuvé par eux.
+
+5. ABSENCE DE GARANTIE
+
+Le Logiciel est un prototype fourni « en l'état », sans aucune garantie.
+
+Pour toute demande d'autorisation : contacter l'auteur via son compte GitHub (ISynn).
+
+-----------------------------------------------------------------------------------------------------
+English summary: Copyright © 2026 ISynn. All rights reserved. No license is granted. Copying,
+modifying, reusing, distributing or using this software, in whole or in part, without the author's
+prior written permission is prohibited. Viewing and running it is permitted solely to evaluate the
+author's job application. Third-party components remain under their own licenses (see section 4).

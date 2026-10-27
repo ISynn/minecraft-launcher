@@ -1,4 +1,5 @@
-﻿# Dessine l'icône du prototype (monogramme « P » jaune, police Kanit, fond sombre) : PNG pour la fenêtre,
+﻿# © 2026 ISynn — tous droits réservés. Voir le fichier LICENSE.
+# Dessine l'icône du prototype (monogramme « P » jaune, police Kanit, fond sombre) : PNG pour la fenêtre,
 # .ico pour l'exécutable. Icône originale : elle ne reprend pas le logo de PokeIsland.
 # Usage : powershell -File packaging\make-icon.ps1   (depuis la racine du projet)
 Add-Type -AssemblyName System.Drawing

@@ -1,4 +1,5 @@
-﻿# Construit la version Windows du launcher : un dossier autonome (Java inclus) et son archive .zip.
+﻿# © 2026 ISynn — tous droits réservés. Voir le fichier LICENSE.
+# Construit la version Windows du launcher : un dossier autonome (Java inclus) et son archive .zip.
 # Le joueur n'a rien à installer : il décompresse et lance « PokeIsland Launcher.exe ».
 #
 # Usage (depuis la racine du projet) :
@@ -43,7 +44,8 @@ Write-Output "3/4 Image de l'application (jlink + jpackage)"
     --dest $dist `
     --name $name `
     --app-version $numeric `
-    --vendor "Prototype non officiel" `
+    --vendor "ISynn" `
+    --copyright "© 2026 ISynn - tous droits réservés" `
     --description "PokeIsland Launcher - prototype non officiel" `
     --icon packaging\pokeisland.ico `
     --module-path "target\launcher-$version.jar;target\libs" `
@@ -60,6 +62,7 @@ if ($LASTEXITCODE -ne 0) { throw "jpackage a échoué." }
 
 Write-Output "4/4 Archive"
 $zip = Join-Path $dist "PokeIsland-Launcher-$version-windows.zip"
+Copy-Item LICENSE (Join-Path (Join-Path $dist $name) "LICENSE.txt")
 if ($Branding) {
     if (-not (Test-Path $Branding)) { throw "Dossier de visuels introuvable : $Branding" }
     $target = Join-Path (Join-Path $dist $name) "branding"

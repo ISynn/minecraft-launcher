@@ -15,6 +15,9 @@ public final class LauncherConfig {
     /** Mention affichée en permanence : ce launcher n'est pas un produit officiel. */
     public static final String DISCLAIMER = "Prototype non officiel";
     public static final String VERSION = "2.0.0-alpha";
+    /** Auteur et titulaire des droits sur le code (voir le fichier LICENSE). */
+    public static final String AUTHOR = "ISynn";
+    public static final String COPYRIGHT = "© 2026 " + AUTHOR + " — tous droits réservés";
 
     /**
      * Nom du dossier du jeu (%APPDATA%/.pokeisland-prototype sous Windows).

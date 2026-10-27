@@ -1,3 +1,4 @@
+// © 2026 ISynn — tous droits réservés. Voir le fichier LICENSE.
 package fr.launcher.core.auth;
 
 import fr.launcher.util.Json;

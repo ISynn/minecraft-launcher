@@ -1,3 +1,4 @@
+// © 2026 ISynn — tous droits réservés. Voir le fichier LICENSE.
 package fr.launcher.ui.shell;
 
 import fr.launcher.core.log.Log;
