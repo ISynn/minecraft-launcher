@@ -39,16 +39,27 @@ pour la démonstration ; les fichiers ne sont pas fournis avec le code (voir <a 
 
 ## Essayer le launcher
 
-**Version Windows (rien à installer)** : décompresse `PokeIsland-Launcher-2.0.0-alpha-windows.zip` (38 Mo), puis
-lance `PokeIsland Launcher.exe`. Java est inclus dans le dossier.
+**Il faut** un PC sous Windows 10 ou 11 (64 bits), environ 1,5 Go d'espace libre et une connexion Internet pour la
+première installation du jeu. Rien d'autre : Java est inclus.
 
-L'archive se construit avec [`packaging/build-windows.ps1`](packaging/build-windows.ps1) (voir
-[Développement](#développement)).
+1. **Télécharger** : ouvre la page [**Releases**](https://github.com/ISynn/minecraft-launcher/releases/latest) du dépôt (colonne de droite sur GitHub),
+   puis clique sur `PokeIsland-Launcher-2.0.0-alpha-windows-demo.zip` (39 Mo) dans la partie *Assets*.
+2. **Décompresser** : dans tes Téléchargements, clic droit sur le fichier → **Extraire tout…** → **Extraire**.
+   Ne lance pas le launcher depuis l'intérieur du `.zip` sans l'extraire : il ne trouverait pas ses fichiers.
+3. **Lancer** : ouvre le dossier `PokeIsland Launcher` puis double-clique sur **`PokeIsland Launcher.exe`**.
+   > Le prototype n'est pas signé numériquement. Windows peut donc afficher « Windows a protégé votre ordinateur » :
+   > clique sur **Informations complémentaires**, puis **Exécuter quand même**.
+4. **Se connecter** : sous « Mode démo », entre un pseudo de test (3 à 16 lettres, chiffres ou `_`), puis clique sur
+   **Tester**. La connexion Microsoft n'est pas activée dans ce prototype (voir [Limitations](#limitations-connues)).
+5. **Jouer** : clique sur **Jouer**. La première fois, le launcher télécharge le jeu (environ 1 Go, compte une dizaine
+   de minutes selon la connexion), puis Minecraft s'ouvre. Il ne peut pas rejoindre de serveur avec un compte de
+   test : le menu de Minecraft s'affiche simplement.
 
-Au premier écran, choisis le **mode démo** : entre un pseudo de test (3 à 16 lettres, chiffres ou `_`) puis
-« Tester ». La connexion Microsoft n'est pas activée dans ce prototype (voir [Limitations](#limitations-connues)).
+**Pour tout supprimer** : efface le dossier `PokeIsland Launcher`, puis le dossier `%APPDATA%\.pokeisland-prototype`
+(colle ce chemin dans la barre d'adresse de l'Explorateur). Ces deux dossiers contiennent le launcher, le jeu et les
+réglages ; le prototype ne touche ni au launcher officiel de PokeIsland ni à un Minecraft déjà installé.
 
-Un clic sur **Jouer** installe alors, dans `%APPDATA%\.pokeisland-prototype` :
+Ce que télécharge le premier clic sur **Jouer**, dans `%APPDATA%\.pokeisland-prototype` :
 
 | Étape | Contenu | Taille |
 |---|---|---|
