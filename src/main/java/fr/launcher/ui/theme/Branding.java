@@ -14,8 +14,9 @@ import java.util.logging.Logger;
  * Ressources de marque facultatives (illustration de fond, logo…), lues sur le disque et jamais embarquées.
  *
  * <p>Les visuels de PokeIsland appartiennent à leurs auteurs : ils ne sont pas versionnés avec le code.
- * On les cherche dans {@code ./branding/} (développement, ignoré par Git) puis dans
- * {@code <dossier du launcher>/launcher/branding/}. Sans eux, le launcher garde un rendu complet de secours.</p>
+ * On les cherche dans {@code ./branding/} (développement, ignoré par Git), à côté de l'exécutable (version
+ * empaquetée avec {@code build-windows.ps1 -Branding}) puis dans {@code <dossier du launcher>/launcher/branding/}.
+ * Sans eux, le launcher garde un rendu complet de secours.</p>
  */
 public final class Branding {
 
@@ -26,6 +27,9 @@ public final class Branding {
 
     public Branding(Path dataDir) {
         directories.add(Path.of("branding"));
+        // Propriété posée par le lanceur de jpackage : chemin du .exe de la version empaquetée.
+        String exe = System.getProperty("jpackage.app-path");
+        if (exe != null) directories.add(Path.of(exe).toAbsolutePath().getParent().resolve("branding"));
         directories.add(dataDir.resolve("launcher").resolve("branding"));
     }
 

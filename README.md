@@ -10,9 +10,10 @@
 ![Fabric](https://img.shields.io/badge/Fabric-0.17.3-DBB68B?style=flat-square)
 ![Tests](https://img.shields.io/badge/tests-72%20r%C3%A9ussis-2ea043?style=flat-square)
 
-<img src="docs/accueil.png" alt="Écran d'accueil du launcher" width="860">
+<img src="docs/accueil.jpg" alt="Écran d'accueil du launcher" width="860">
 
-<sub>Captures prises <b>sans</b> les visuels officiels de PokeIsland, qui ne sont pas fournis avec le code (voir <a href="#visuels-de-pokeisland">Visuels</a>).</sub>
+<sub>Captures du launcher réel (version Windows empaquetée, 27/10/2026). Illustration et logo : © PokeIsland, affichés
+pour la démonstration ; les fichiers ne sont pas fournis avec le code (voir <a href="#visuels-de-pokeisland">Visuels</a>).</sub>
 
 </div>
 
@@ -61,12 +62,26 @@ Les lancements suivants ne retéléchargent que ce qui a changé ; la vérificat
 
 <table>
 <tr>
-<td><img src="docs/installation.png" alt="Écran Installation"></td>
-<td><img src="docs/parametres.png" alt="Écran Paramètres"></td>
+<td width="50%"><img src="docs/connexion.jpg" alt="Écran de connexion"></td>
+<td width="50%"><img src="docs/actualites.jpg" alt="Écran Actualités"></td>
+</tr>
+<tr>
+<td align="center"><sub>Connexion : compte Microsoft (à activer) ou mode démo</sub></td>
+<td align="center"><sub>Actualités : articles réels du blog pokeisland.fr</sub></td>
+</tr>
+<tr>
+<td><img src="docs/installation.jpg" alt="Écran Installation"></td>
+<td><img src="docs/parametres.jpg" alt="Écran Paramètres"></td>
 </tr>
 <tr>
 <td align="center"><sub>Installation : étapes, espace disque, vérification et réparation</sub></td>
 <td align="center"><sub>Paramètres : mémoire, fenêtre du jeu, options Java validées</sub></td>
+</tr>
+<tr>
+<td><img src="docs/aide.jpg" alt="Écran Aide"></td>
+<td valign="middle"><sub><b>Aide</b> : problèmes fréquents, journal du launcher, informations de diagnostic à copier
+(sans aucun jeton), liens vers le guide et le Discord.<br><br>Toujours visibles : la mention « Prototype non officiel »
+et le rail de navigation, avec le site, la boutique et le Discord.</sub></td>
 </tr>
 </table>
 
@@ -136,11 +151,21 @@ première fermeture et accélère les lancements suivants.
 ### Visuels de PokeIsland
 
 Les visuels officiels (illustration de fond, logo) **ne sont pas dans le dépôt** : ils appartiennent à PokeIsland.
-Sans eux, le launcher affiche un rendu complet de secours : logo typographique, fond dégradé. Pour un essai privé,
-dépose `background.jpg` (ou `.png`) et `logo.png` dans l'un de ces dossiers :
+Sans eux, le launcher affiche un rendu complet de secours : logo typographique, fond dégradé. Pour une démonstration
+privée, dépose `background.jpg` (ou `.png`) et `logo.png` dans l'un de ces dossiers :
 
 - `branding\` à la racine du projet (ignoré par Git) ;
+- `branding\` à côté de `PokeIsland Launcher.exe` ;
 - `%APPDATA%\.pokeisland-prototype\launcher\branding\`.
+
+Pour produire une archive de démonstration qui les contient déjà :
+
+```powershell
+powershell -ExecutionPolicy Bypass -File packaging\build-windows.ps1 -Jdk "C:\Program Files\Java\jdk-24" -Branding <dossier des visuels>
+```
+
+Elle s'appelle `PokeIsland-Launcher-2.0.0-alpha-windows-demo.zip`. Elle est destinée à être montrée à l'équipe de
+PokeIsland, pas à être diffusée publiquement.
 
 Les images sont décodées à leur taille d'affichage : une illustration en 4K ne coûte pas plus de mémoire.
 

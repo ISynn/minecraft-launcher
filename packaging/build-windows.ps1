@@ -8,7 +8,10 @@
 # pour assembler un Java réduit aux seuls modules utilisés. java.exe est conservé dans ce Java réduit : jlink
 # s'en sert pour générer l'archive CDS de base, sans laquelle l'archive de démarrage rapide ne peut être créée.
 # jdk.localedata (limité au français et à l'anglais) : sans lui, les dates s'afficheraient en anglais (« Sep »).
-param([string]$Jdk = $env:JAVA_HOME)
+#
+# -Branding <dossier> ajoute à l'archive les visuels officiels (background, logo) pour une démonstration privée :
+#   ils appartiennent à PokeIsland, ne sont jamais versionnés et ne doivent pas être diffusés publiquement.
+param([string]$Jdk = $env:JAVA_HOME, [string]$Branding = "")
 $ErrorActionPreference = "Stop"
 
 $root = Split-Path $PSScriptRoot
@@ -57,6 +60,15 @@ if ($LASTEXITCODE -ne 0) { throw "jpackage a échoué." }
 
 Write-Output "4/4 Archive"
 $zip = Join-Path $dist "PokeIsland-Launcher-$version-windows.zip"
+if ($Branding) {
+    if (-not (Test-Path $Branding)) { throw "Dossier de visuels introuvable : $Branding" }
+    $target = Join-Path (Join-Path $dist $name) "branding"
+    New-Item -ItemType Directory -Force $target | Out-Null
+    Get-ChildItem $Branding -File | Where-Object { $_.Extension -in ".png", ".jpg", ".jpeg" } |
+        Copy-Item -Destination $target
+    $zip = Join-Path $dist "PokeIsland-Launcher-$version-windows-demo.zip"
+    Write-Output "    visuels officiels ajoutés (archive de démonstration privée)"
+}
 Compress-Archive -Path (Join-Path $dist $name) -DestinationPath $zip -Force
 $size = (Get-ChildItem (Join-Path $dist $name) -Recurse -File | Measure-Object Length -Sum).Sum / 1MB
 Write-Output ("Terminé : {0} ({1:N0} Mo décompressé, {2:N0} Mo en .zip)" -f $zip, $size, ((Get-Item $zip).Length / 1MB))
