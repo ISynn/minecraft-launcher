@@ -49,10 +49,21 @@ class NewsServiceTest {
         NewsService service = new NewsService(provider, dir.resolve("cache/news.json"));
         service.load();
         provider.online = false;
-        NewsFeed feed = service.load();
+        NewsFeed feed = service.load(true); // « Actualiser » alors que le réseau est coupé
         assertEquals(NewsFeed.Source.CACHE, feed.source());
         assertEquals(List.of(ARTICLE), feed.articles());
         assertNotNull(feed.fetchedAt(), "la date de la copie est affichée à l'utilisateur");
+    }
+
+    @Test
+    void uneCopieRecenteEviteDeSolliciterLeBlog() {
+        FakeProvider provider = new FakeProvider();
+        NewsService service = new NewsService(provider, dir.resolve("cache/news.json"));
+        service.load();
+        provider.online = false; // si le blog était interrogé, on tomberait sur la copie hors ligne
+        NewsFeed feed = service.load();
+        assertEquals(NewsFeed.Source.LIVE, feed.source(), "copie de moins de 30 min, considérée à jour");
+        assertEquals(List.of(ARTICLE), feed.articles());
     }
 
     @Test

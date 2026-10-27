@@ -22,8 +22,8 @@ import java.nio.file.Path;
 public final class LauncherCore {
 
     /** Dossier du launcher : %APPDATA%/.pokeisland-prototype. */
-    public final Path dataDir = Os.gameDir();
-    public final Path logsDir = dataDir.resolve("launcher").resolve("logs");
+    public final Path dataDir;
+    public final Path logsDir;
     public final Settings settings;
     public final Path gameDir;
     public final AccountStore accounts;
@@ -34,6 +34,13 @@ public final class LauncherCore {
     public final InstanceLock instanceLock;
 
     public LauncherCore() {
+        this(Os.gameDir());
+    }
+
+    /** @param dataDir dossier du launcher (un dossier temporaire dans les tests, jamais celui du joueur) */
+    public LauncherCore(Path dataDir) {
+        this.dataDir = dataDir;
+        this.logsDir = dataDir.resolve("launcher").resolve("logs");
         // Le journal d'abord : le chargement des réglages peut déjà avoir quelque chose à signaler.
         Log.init(logsDir);
         settings = Settings.load(dataDir.resolve("launcher/settings.json"));

@@ -11,8 +11,10 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,6 +26,7 @@ public final class NewsService {
 
     private static final Logger LOG = Log.get(NewsService.class);
     private static final String DEMO_RESOURCE = "/fr/launcher/assets/news-demo.json";
+    private static final Duration FRESH = Duration.ofMinutes(30);
 
     private record Cache(String fetchedAt, List<NewsArticle> articles) {
     }
@@ -40,8 +43,27 @@ public final class NewsService {
         return provider.name();
     }
 
-    /** À appeler hors du thread graphique (réseau). Ne lève jamais d'exception : il y a toujours un repli. */
+    /** Équivalent de {@code load(false)}. */
     public NewsFeed load() {
+        return load(false);
+    }
+
+    /**
+     * À appeler hors du thread graphique (réseau). Ne lève jamais d'exception : il y a toujours un repli.
+     *
+     * @param force vrai = toujours interroger le blog ; faux = une copie de moins de 30 min suffit
+     *              (évite 7 requêtes au site à chaque ouverture du launcher)
+     */
+    public NewsFeed load(boolean force) {
+        if (!force) {
+            Instant limit = Instant.now().minus(FRESH);
+            Optional<Cache> fresh = readCache().filter(c -> Instant.parse(c.fetchedAt()).isAfter(limit));
+            if (fresh.isPresent()) {
+                LOG.fine("Actualités récentes réutilisées (" + fresh.get().fetchedAt() + ")");
+                Cache cache = fresh.get();
+                return new NewsFeed(cache.articles(), NewsFeed.Source.LIVE, Instant.parse(cache.fetchedAt()));
+            }
+        }
         try {
             List<NewsArticle> articles = provider.fetch();
             Instant now = Instant.now();
@@ -54,18 +76,25 @@ public final class NewsService {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+        return readCache()
+                .map(c -> new NewsFeed(c.articles(), NewsFeed.Source.CACHE, Instant.parse(c.fetchedAt())))
+                .orElseGet(() -> new NewsFeed(demo(), NewsFeed.Source.DEMO, null));
+    }
+
+    private Optional<Cache> readCache() {
         try {
-            if (Files.isRegularFile(cacheFile)) {
-                Cache cache = Json.read(cacheFile, Cache.class);
-                if (cache != null && cache.articles() != null && !cache.articles().isEmpty()) {
-                    return new NewsFeed(cache.articles(), NewsFeed.Source.CACHE, Instant.parse(cache.fetchedAt()));
-                }
+            if (!Files.isRegularFile(cacheFile)) return Optional.empty();
+            Cache cache = Json.read(cacheFile, Cache.class);
+            if (cache == null || cache.articles() == null || cache.articles().isEmpty() || cache.fetchedAt() == null) {
+                return Optional.empty();
             }
+            Instant.parse(cache.fetchedAt()); // date illisible = cache inutilisable
+            return Optional.of(cache);
         } catch (IOException | RuntimeException e) {
             LOG.log(Level.WARNING, "Cache des actualités illisible", e);
             Json.quarantine(cacheFile);
+            return Optional.empty();
         }
-        return new NewsFeed(demo(), NewsFeed.Source.DEMO, null);
     }
 
     private void saveCache(Cache cache) {

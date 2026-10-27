@@ -68,6 +68,15 @@ public final class Log {
         }
     }
 
+    /** Vide et ferme le journal (fermeture du launcher) : le fichier n'est plus verrouillé. */
+    public static void close() {
+        Logger root = Logger.getLogger(ROOT);
+        for (Handler h : root.getHandlers()) {
+            root.removeHandler(h);
+            h.close();
+        }
+    }
+
     /** Journal détaillé (diagnostic) : inclut les messages de niveau FINE dans le fichier. */
     public static void setVerbose(boolean verbose) {
         Logger.getLogger(ROOT).setLevel(verbose ? Level.FINE : Level.INFO);

@@ -35,12 +35,20 @@ public final class Branding {
      * @param name nom sans extension, par ex. « background »
      */
     public Optional<Image> image(String name) {
+        return image(name, 0);
+    }
+
+    /**
+     * @param maxHeight hauteur de décodage maximale en pixels (0 = taille d'origine) : un logo affiché à 165 px
+     *                  n'a pas besoin d'être gardé en mémoire à 826 px
+     */
+    public Optional<Image> image(String name, int maxHeight) {
         for (Path dir : directories) {
             for (String ext : EXTENSIONS) {
                 Path file = dir.resolve(name + ext);
                 if (Files.isRegularFile(file)) {
                     LOG.info("Visuel « " + name + " » chargé depuis " + file.toAbsolutePath());
-                    return Optional.of(new Image(file.toUri().toString(), true));
+                    return Optional.of(new Image(file.toUri().toString(), 0, maxHeight, true, true, true));
                 }
             }
         }

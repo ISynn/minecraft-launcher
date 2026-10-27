@@ -73,7 +73,8 @@ final class StatusStrip extends VBox {
             }
             case LAUNCHING -> {
                 headline.setText("Démarrage de Minecraft…");
-                detail.setText("Le chargement des mods peut prendre une minute. Le launcher se masquera à l'ouverture du jeu.");
+                detail.setText("Le chargement des mods peut prendre une minute. "
+                        + "Le launcher se masquera à l'ouverture du jeu.");
                 bar.setVisible(true);
                 bar.start(); // indéterminé
             }

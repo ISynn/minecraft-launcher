@@ -15,5 +15,6 @@ public final class LauncherApp extends Application {
     @Override
     public void stop() {
         Log.get(LauncherApp.class).info("Fermeture du launcher");
+        Log.close();
     }
 }

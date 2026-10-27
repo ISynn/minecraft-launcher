@@ -138,8 +138,8 @@
     -fx-background-radius: 999;
 }
 
-/* ---------- Notifications : au-dessus de la zone du bas, à gauche du rail ---------- */
+/* ---------- Notifications : en haut, centrées sur la zone de contenu (hors rail), sous la barre de titre ---------- */
 
 .toasts {
-    -fx-padding: 0 104 26 0;
+    -fx-padding: 44 104 0 0;
 }

@@ -37,6 +37,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public final class LoginScreen implements Screen {
 
+    private static final int LOGO_DECODE_HEIGHT = 240;
+
     private final AppContext app;
     private final StackPane root = new StackPane();
     private final VBox choice = new VBox(14);
@@ -61,7 +63,7 @@ public final class LoginScreen implements Screen {
         waiting.managedProperty().bind(waiting.visibleProperty());
         waiting.setVisible(false);
 
-        VBox card = new VBox(Wordmark.create(app.branding.image("logo"), 96), title, subtitle, body);
+        VBox card = new VBox(Wordmark.create(app.branding.image("logo", LOGO_DECODE_HEIGHT), 96), title, subtitle, body);
         card.getStyleClass().addAll("card", "login-card");
         card.setAlignment(Pos.TOP_CENTER);
         card.setMaxSize(420, Region.USE_PREF_SIZE);

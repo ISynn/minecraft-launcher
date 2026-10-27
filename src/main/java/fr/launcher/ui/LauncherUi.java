@@ -64,13 +64,7 @@ public final class LauncherUi {
             app.attach(shell);
             installErrorHandler(app);
 
-            shell.register(ScreenId.HOME, () -> new HomeScreen(app));
-            shell.register(ScreenId.NEWS, () -> new NewsScreen(app));
-            shell.register(ScreenId.INSTALL, () -> new InstallScreen(app));
-            shell.register(ScreenId.ACCOUNT, () -> new AccountScreen(app));
-            shell.register(ScreenId.SETTINGS, () -> new SettingsScreen(app));
-            shell.register(ScreenId.HELP, () -> new HelpScreen(app));
-            shell.setLoginScreen(() -> new LoginScreen(app));
+            registerScreens(app, shell);
 
             Account saved = core.accounts.load().orElse(null);
             if (saved == null) {
@@ -89,6 +83,17 @@ public final class LauncherUi {
         } catch (RuntimeException e) {
             fatal(e);
         }
+    }
+
+    /** Tous les écrans du launcher (utilisé aussi par le test de démarrage). */
+    static void registerScreens(AppContext app, AppShell shell) {
+        shell.register(ScreenId.HOME, () -> new HomeScreen(app));
+        shell.register(ScreenId.NEWS, () -> new NewsScreen(app));
+        shell.register(ScreenId.INSTALL, () -> new InstallScreen(app));
+        shell.register(ScreenId.ACCOUNT, () -> new AccountScreen(app));
+        shell.register(ScreenId.SETTINGS, () -> new SettingsScreen(app));
+        shell.register(ScreenId.HELP, () -> new HelpScreen(app));
+        shell.setLoginScreen(() -> new LoginScreen(app));
     }
 
     /** Boîte de dialogue système dont le texte s'affiche en entier (retour à la ligne, hauteur adaptée). */

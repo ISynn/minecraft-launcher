@@ -69,7 +69,8 @@ public final class Router {
         } catch (RuntimeException e) {
             LOG.log(Level.SEVERE, "Impossible de construire l'écran " + id, e);
             EmptyState error = EmptyState.error(Icons.ERROR, "Cet écran n'a pas pu s'afficher",
-                    "Une erreur inattendue est survenue (" + Fx.message(e) + "). Les détails sont dans le journal du launcher.");
+                    "Une erreur inattendue est survenue (" + Fx.message(e) + "). "
+                            + "Les détails sont dans le journal du launcher.");
             return () -> error;
         }
     }

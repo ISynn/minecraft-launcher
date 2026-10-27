@@ -31,6 +31,9 @@ import java.util.Locale;
  */
 public final class HomeScreen implements Screen {
 
+    /** Logo affiché à 132 px (≈ 165 px physiques à 125 %) : décodé en double pour rester net. */
+    private static final int LOGO_DECODE_HEIGHT = 330;
+
     private static final String TAGLINE = "Ton aventure Pokémon sur Minecraft";
 
     private final AppContext app;
@@ -103,6 +106,7 @@ public final class HomeScreen implements Screen {
         onPhase(play.phaseProperty().get());
         // Pendant la partie la fenêtre est cachée : rien ne doit tourner pour rien.
         app.stage.showingProperty().addListener((o, a, showing) -> updateActivity());
+        app.stage.focusedProperty().addListener((o, a, focused) -> updateActivity());
     }
 
     private Node brandBlock() {
@@ -118,7 +122,7 @@ public final class HomeScreen implements Screen {
         HBox actions = new HBox(14, playButton, profile, settings);
         actions.setAlignment(Pos.CENTER_LEFT);
 
-        VBox block = new VBox(8, Wordmark.create(app.branding.image("logo"), 132), tagline, actions);
+        VBox block = new VBox(8, Wordmark.create(app.branding.image("logo", LOGO_DECODE_HEIGHT), 132), tagline, actions);
         block.getStyleClass().add("home-brand");
         block.setAlignment(Pos.BOTTOM_LEFT);
         VBox.setMargin(actions, new Insets(18, 0, 0, 0));
@@ -165,7 +169,8 @@ public final class HomeScreen implements Screen {
     private void updateActivity() {
         boolean active = shown && app.stage.isShowing();
         server.setPolling(active);
-        news.setRunning(active);
+        // Le carrousel ne défile que si le joueur regarde le launcher : dans une autre fenêtre, inutile d'animer.
+        news.setRunning(active && app.stage.isFocused());
     }
 
     @Override

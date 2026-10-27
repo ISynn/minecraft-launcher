@@ -32,6 +32,7 @@ public final class NewsCards {
     private static final DateTimeFormatter SHORT_DATE = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.FRANCE);
     private static final DateTimeFormatter DAY = DateTimeFormatter.ofPattern("d MMM", Locale.FRANCE)
             .withZone(ZoneId.systemDefault());
+    private static final int THUMBNAIL_WIDTH = 800;
     /** Vignettes déjà demandées : chacune n'est téléchargée et décodée qu'une fois. */
     private static final Map<String, Image> IMAGES = new HashMap<>();
 
@@ -53,7 +54,8 @@ public final class NewsCards {
 
     public static Image image(NewsArticle article) {
         if (article.imageUrl().isBlank()) return null;
-        return IMAGES.computeIfAbsent(article.imageUrl(), url -> new Image(url, true));
+        // Décodée à 800 px de large (la plus grande carte en affiche ~550 à 125 %), et non à 1200 : moins de mémoire.
+        return IMAGES.computeIfAbsent(article.imageUrl(), url -> new Image(url, THUMBNAIL_WIDTH, 0, true, true, true));
     }
 
     /** Catégorie, mention « Nouveau » et date, sur une ligne. */

@@ -23,14 +23,19 @@ public final class NewsStore {
 
     /** Charge au premier besoin ; ne fait rien si c'est déjà fait ou en cours. */
     public void ensureLoaded() {
-        if (feed.get() == null && !loading.get()) refresh();
+        if (feed.get() == null && !loading.get()) load(false);
     }
 
+    /** Bouton « Actualiser » : interroge toujours le blog. */
     public void refresh() {
+        load(true);
+    }
+
+    private void load(boolean force) {
         if (loading.get()) return;
         loading.set(true);
         // NewsService ne lève jamais d'exception : il y a toujours un repli (cache ou démo).
-        Fx.async(service::load, result -> {
+        Fx.async(() -> service.load(force), result -> {
             feed.set(result);
             loading.set(false);
         }, error -> loading.set(false));

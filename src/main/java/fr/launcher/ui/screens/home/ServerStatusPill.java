@@ -12,7 +12,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.util.Duration;
 
-/** Statut réel du serveur configuré (protocole « Server List Ping »), rafraîchi toutes les 30 s quand l'accueil est visible. */
+/**
+ * Statut réel du serveur configuré (protocole « Server List Ping »),
+ * rafraîchi toutes les 30 s quand l'accueil est visible.
+ */
 final class ServerStatusPill extends HBox {
 
     private static final PseudoClass ONLINE = PseudoClass.getPseudoClass("online");
@@ -20,7 +23,8 @@ final class ServerStatusPill extends HBox {
     private final Region dot = new Region();
     private final Label text = new Label("Statut du serveur…");
     private final Label detail = new Label();
-    private final Timeline poll = new Timeline(new KeyFrame(Duration.ZERO, e -> refresh()), new KeyFrame(Duration.seconds(30)));
+    private final Timeline poll = new Timeline(new KeyFrame(Duration.ZERO, e -> refresh()),
+            new KeyFrame(Duration.seconds(30)));
 
     ServerStatusPill() {
         super(8);

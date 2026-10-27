@@ -81,6 +81,12 @@
                     <options>
                         <option>--enable-native-access=javafx.graphics,fr.launcher</option>
                         <option>-Dprism.forceGPU=true</option>
+                        <!-- Mesuré (étape 6) : ramasse-miettes Serial + tas plafonné = ~35 Mo de mémoire privée en moins ;
+                             archive CDS créée au premier lancement = démarrage interne ~2,2 s -> ~1,5 s ensuite. -->
+                        <option>-XX:+UseSerialGC</option>
+                        <option>-Xmx256m</option>
+                        <option>-XX:+AutoCreateSharedArchive</option>
+                        <option>-XX:SharedArchiveFile=${project.build.directory}/launcher.jsa</option>
                     </options>
                 </configuration>
             </plugin>

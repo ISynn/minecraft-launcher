@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 /** Client HTTP partagé (HTTP/2, connexions réutilisées) et helpers JSON. */
 public final class Http {
 
-    /** Identifie honnêtement le prototype auprès des API (Mojang, Fabric…), sans se faire passer pour le launcher officiel. */
+    /** Identifie honnêtement le prototype auprès des API (Mojang, Fabric…), sans imiter le launcher officiel. */
     public static final String USER_AGENT = LauncherConfig.NAME + "-Prototype-Launcher/" + LauncherConfig.VERSION;
 
     public static final HttpClient CLIENT = HttpClient.newBuilder()

@@ -14,14 +14,17 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
-/** Notifications discrètes qui glissent en bas à droite et disparaissent seules. */
+/**
+ * Notifications discrètes qui descendent en haut au centre et disparaissent seules. Cet espace sépare le titre
+ * de chaque écran (à gauche) de ses actions (à droite) : une notification ne masque jamais un bouton.
+ */
 public final class Toasts extends VBox {
 
     public enum Kind { INFO, SUCCESS, ERROR }
 
     public Toasts() {
         getStyleClass().add("toasts");
-        setAlignment(Pos.BOTTOM_RIGHT);
+        setAlignment(Pos.TOP_CENTER);
         setSpacing(10);
         setPadding(new Insets(0, 24, 24, 0));
         setPickOnBounds(false);
@@ -43,20 +46,20 @@ public final class Toasts extends VBox {
         toast.setOnMouseClicked(e -> getChildren().remove(toast));
 
         toast.setOpacity(0);
-        toast.setTranslateX(40);
+        toast.setTranslateY(-16);
         getChildren().add(toast);
 
         FadeTransition fadeIn = new FadeTransition(Duration.millis(300), toast);
         fadeIn.setToValue(1);
         TranslateTransition slideIn = new TranslateTransition(Duration.millis(450), toast);
-        slideIn.setToX(0);
+        slideIn.setToY(0);
         ParallelTransition in = new ParallelTransition(fadeIn, slideIn);
         in.setInterpolator(Fx.EASE_OUT);
 
         FadeTransition fadeOut = new FadeTransition(Duration.millis(300), toast);
         fadeOut.setToValue(0);
         TranslateTransition slideOut = new TranslateTransition(Duration.millis(300), toast);
-        slideOut.setToX(30);
+        slideOut.setToY(-12);
         ParallelTransition out = new ParallelTransition(fadeOut, slideOut);
 
         double seconds = kind == Kind.ERROR ? 7 : 4;

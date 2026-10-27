@@ -141,7 +141,9 @@ public final class BlogNewsProvider implements NewsProvider {
                 case "nbsp" -> " ";
                 default -> {
                     try {
-                        int code = e.startsWith("#x") ? Integer.parseInt(e.substring(2), 16) : Integer.parseInt(e.substring(1));
+                        int code = e.startsWith("#x")
+                                ? Integer.parseInt(e.substring(2), 16)
+                                : Integer.parseInt(e.substring(1));
                         yield new String(Character.toChars(code));
                     } catch (IllegalArgumentException invalid) {
                         yield m.group(); // entité invalide : laissée telle quelle

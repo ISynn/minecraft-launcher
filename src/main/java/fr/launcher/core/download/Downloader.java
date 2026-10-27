@@ -21,7 +21,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Télécharge des milliers de fichiers en parallèle avec des threads virtuels.
@@ -34,6 +39,15 @@ public final class Downloader {
 
     private static final int PARALLEL = 24;
     private static final int RETRIES = 3;
+
+    /**
+     * Sans le moindre octet reçu pendant ce délai, le transfert est abandonné puis retenté. Le délai de la requête
+     * ne couvre que l'attente des en-têtes : sans ce garde, un serveur muet bloquerait la vérification indéfiniment.
+     */
+    static final Duration STALL_TIMEOUT = Duration.ofSeconds(30);
+
+    private static final ScheduledExecutorService WATCHDOG = Executors.newSingleThreadScheduledExecutor(
+            Thread.ofPlatform().daemon().name("download-watchdog").factory());
 
     private Downloader() {
     }
@@ -48,6 +62,11 @@ public final class Downloader {
      */
     public static void downloadAll(String step, List<DownloadTask> tasks, Progress progress, boolean online)
             throws IOException, InterruptedException {
+        downloadAll(step, tasks, progress, online, STALL_TIMEOUT);
+    }
+
+    static void downloadAll(String step, List<DownloadTask> tasks, Progress progress, boolean online,
+                            Duration stall) throws IOException, InterruptedException {
         long total = tasks.stream().mapToLong(DownloadTask::size).sum();
         progress.begin(step, total, tasks.size());
         if (!online) {
@@ -55,6 +74,8 @@ public final class Downloader {
             return;
         }
         Semaphore permits = new Semaphore(PARALLEL);
+        // Levé avant shutdownNow() : une vraie annulation n'est jamais confondue avec un transfert bloqué.
+        AtomicBoolean aborted = new AtomicBoolean();
 
         try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
             List<Future<?>> futures = new ArrayList<>(tasks.size());
@@ -65,7 +86,7 @@ public final class Downloader {
                     } else {
                         permits.acquire();
                         try {
-                            download(task, progress);
+                            download(task, progress, stall, aborted);
                         } finally {
                             permits.release();
                         }
@@ -91,6 +112,7 @@ public final class Downloader {
                 // Annulation ou échec : on interrompt tous les transferts. Surtout pas Future.cancel() : la tâche
                 // serait considérée finie aussitôt et close() n'attendrait pas son nettoyage (fichier .part).
                 // Avec shutdownNow(), close() attend que chaque transfert soit réellement arrêté.
+                aborted.set(true);
                 executor.shutdownNow();
                 throw e;
             }
@@ -119,15 +141,17 @@ public final class Downloader {
         return true;
     }
 
-    private static void download(DownloadTask task, Progress progress) throws IOException, InterruptedException {
+    private static void download(DownloadTask task, Progress progress, Duration stall, AtomicBoolean aborted)
+            throws IOException, InterruptedException {
         IOException last = null;
         for (int attempt = 1; attempt <= RETRIES; attempt++) {
             try {
-                transfer(task, progress);
+                transfer(task, progress, stall);
                 return;
             } catch (InterruptedIOException e) {
                 throw e; // annulation : surtout pas de nouvel essai
             } catch (IOException e) {
+                if (aborted.get()) throw new InterruptedIOException("Téléchargement annulé");
                 last = e;
                 if (attempt < RETRIES) Thread.sleep(400L * attempt);
             }
@@ -137,17 +161,30 @@ public final class Downloader {
     }
 
     /** Écrit dans un fichier temporaire, vérifie le hash, puis remplace : jamais de fichier à moitié écrit. */
-    private static void transfer(DownloadTask task, Progress progress) throws IOException, InterruptedException {
+    private static void transfer(DownloadTask task, Progress progress, Duration stall)
+            throws IOException, InterruptedException {
         Path target = task.target();
         Files.createDirectories(target.getParent());
         Path tmp = target.resolveSibling(target.getFileName() + ".part");
 
-        HttpRequest request = Http.request(task.url()).timeout(Duration.ofMinutes(5)).GET().build();
+        HttpRequest request = Http.request(task.url()).GET().build();
         HttpResponse<InputStream> response = Http.CLIENT.send(request, HttpResponse.BodyHandlers.ofInputStream());
         if (response.statusCode() != 200) {
             response.body().close();
             throw new IOException("HTTP " + response.statusCode() + " pour " + task.url());
         }
+
+        // Chien de garde : aucun octet depuis « stall » → on interrompt la lecture (seul moyen de débloquer
+        // HttpResponseInputStream.read), et l'appelant retente le transfert.
+        Thread worker = Thread.currentThread();
+        AtomicLong lastRead = new AtomicLong(System.nanoTime());
+        AtomicBoolean stalled = new AtomicBoolean();
+        long period = Math.max(50, stall.toMillis() / 4);
+        ScheduledFuture<?> watch = WATCHDOG.scheduleAtFixedRate(() -> {
+            if (System.nanoTime() - lastRead.get() > stall.toNanos() && stalled.compareAndSet(false, true)) {
+                worker.interrupt();
+            }
+        }, period, period, TimeUnit.MILLISECONDS);
 
         MessageDigest digest = Hash.sha1();
         long written = 0;
@@ -157,6 +194,7 @@ public final class Downloader {
                 byte[] buffer = new byte[32 * 1024];
                 int read;
                 while ((read = in.read(buffer)) > 0) {
+                    lastRead.set(System.nanoTime());
                     if (Thread.currentThread().isInterrupted()) {
                         throw new InterruptedIOException("Téléchargement annulé");
                     }
@@ -169,10 +207,19 @@ public final class Downloader {
             } catch (IOException e) {
                 // Progression remise à son état d'avant ce transfert.
                 if (task.size() > 0) progress.addBytes(-written);
+                if (stalled.get()) {
+                    Thread.interrupted(); // interruption du chien de garde, pas une annulation
+                    throw new IOException("Aucune donnée reçue depuis " + stall.toSeconds() + " s pour "
+                            + target.getFileName(), e);
+                }
                 if (e instanceof InterruptedIOException || Thread.currentThread().isInterrupted()) {
                     throw new InterruptedIOException("Téléchargement annulé");
                 }
                 throw e;
+            } finally {
+                watch.cancel(false);
+                // Garde déclenché juste après la dernière lecture : on efface son interruption tardive.
+                if (stalled.get()) Thread.interrupted();
             }
 
             if (task.size() <= 0) {

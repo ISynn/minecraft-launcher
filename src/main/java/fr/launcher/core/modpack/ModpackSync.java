@@ -53,7 +53,8 @@ public final class ModpackSync {
         if (LauncherConfig.MODPACK_URL.isBlank()) return Optional.empty();
         if (online) {
             try {
-                ModpackManifest manifest = Json.GSON.fromJson(Http.getJson(LauncherConfig.MODPACK_URL), ModpackManifest.class);
+                ModpackManifest manifest = Json.GSON.fromJson(Http.getJson(LauncherConfig.MODPACK_URL),
+                        ModpackManifest.class);
                 Json.write(cachedManifest, manifest);
                 return Optional.of(manifest);
             } catch (IOException e) {
